@@ -11,9 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorDto {
-    @NotBlank(message = "Author name cannot be blank")
     private String name;
-
-    @NotBlank(message = "Author surname cannot be blank")
     private String surname;
 } 
