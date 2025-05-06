@@ -67,7 +67,15 @@ public class RedisConfig {
         // Create cache configurations for different services
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
+        // Book service caches
+        cacheConfigurations.put("books", defaultConfig);
+        cacheConfigurations.put("book", defaultConfig);
+        cacheConfigurations.put("bookSearch", defaultConfig);
 
+        // Loan service caches
+        cacheConfigurations.put("loans", defaultConfig);
+        cacheConfigurations.put("loan", defaultConfig);
+        cacheConfigurations.put("overdueLoans", defaultConfig);
 
         // User service caches
         cacheConfigurations.put("users", defaultConfig);

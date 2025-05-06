@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kitap Ödünç Alma Bildirimi</title>
+</head>
+<body>
+    <h2>Sayın <span th:text="${userName}"></span>,</h2>
+    <p>Kütüphanemizden ödünç aldığınız kitap bilgileri aşağıdadır:</p>
+    
+    <h3>Kitap Bilgileri:</h3>
+    <ul>
+        <li>Kitap Adı: <span th:text="${bookTitle}"></span></li>
+        <li>Ödünç Alma Tarihi: <span th:text="${borrowedDate}"></span></li>
+        <li>Son Teslim Tarihi: <span th:text="${dueDate}"></span></li>
+    </ul>
+    
+    <p>Lütfen kitabı son teslim tarihine kadar iade ediniz.</p>
+    <p>İyi okumalar dileriz.</p>
+    
+    <p>Saygılarımızla,<br>Kütüphane Yönetimi</p>
+</body>
+</html> 
