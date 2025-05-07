@@ -1,6 +1,14 @@
 package org.pehlivan.mert.librarymanagementsystem.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pehlivan.mert.librarymanagementsystem.exception.book.BookAlreadyExistsException;
+import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotAvailableException;
+import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotFoundException;
+import org.pehlivan.mert.librarymanagementsystem.exception.book.BookStockException;
+import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanAlreadyReturnedException;
+import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanLimitExceededException;
+import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanNotFoundException;
+import org.pehlivan.mert.librarymanagementsystem.exception.loan.UserLoanHistoryNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedRoleException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserAlreadyExistsException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserNotFoundException;
@@ -100,6 +108,95 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    // Book Exceptions
+    @ExceptionHandler(BookNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleBookNotFoundException(BookNotFoundException ex) {
+        log.error("Book not found: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BookNotAvailableException.class)
+    public ResponseEntity<ErrorResponse> handleBookNotAvailableException(BookNotAvailableException ex) {
+        log.error("Book not available: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BookAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleBookAlreadyExistsException(BookAlreadyExistsException ex) {
+        log.error("Book already exists: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(BookStockException.class)
+    public ResponseEntity<ErrorResponse> handleBookStockException(BookStockException ex) {
+        log.error("Book stock error: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    // Loan Exceptions
+    @ExceptionHandler(LoanNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleLoanNotFoundException(LoanNotFoundException ex) {
+        log.error("Loan not found: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(LoanLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleLoanLimitExceededException(LoanLimitExceededException ex) {
+        log.error("Loan limit exceeded: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(LoanAlreadyReturnedException.class)
+    public ResponseEntity<ErrorResponse> handleLoanAlreadyReturnedException(LoanAlreadyReturnedException ex) {
+        log.error("Loan already returned: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserLoanHistoryNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserLoanHistoryNotFoundException(UserLoanHistoryNotFoundException ex) {
+        log.error("User loan history not found: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex) {
