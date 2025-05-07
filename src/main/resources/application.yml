@@ -1,0 +1,210 @@
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: library-management-system
+  info:
+    build:
+      creator: Mert Pehlivan
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:library_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+      auto-commit: true
+      pool-name: LibraryHikariCP
+      connection-test-query: SELECT 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        enable_lazy_load_no_trans: true
+        bytecode:
+          provider: bytebuddy
+        current_session_context_class: thread
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: true
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:pehlivannmerat@gmail.com}
+    password: ${MAIL_PASSWORD:mtytatspsqgiwrom}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: smtp.gmail.com
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:pass}
+      timeout: 10000
+      database: 0
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+        shutdown-timeout: 100ms
+        client-name: library-app
+        client-options:
+          ping-before-activate-connection: true
+          auto-reconnect: true
+          cancel-commands-on-reconnect-failure: true
+        socket-options:
+          connect-timeout: 10000
+          keep-alive: true
+          tcp-no-delay: true
+        cluster:
+          refresh:
+            adaptive: true
+            period: 2000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+    endpoint:
+      health:
+        show-details: always
+      prometheus:
+        enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        descriptions: true
+        step: 1m
+    tags:
+      application: ${spring.application.name}
+      instance: ${spring.application.name}-${random.value}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      sla:
+        http.server.requests: 10ms,50ms,100ms,200ms,500ms,1s,2s,5s
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  web:
+    base-path: /actuator
+    exposure:
+      include: health,info,metrics,prometheus
+  server:
+    port: ${SERVER_PORT:8080}
+    servlet:
+      context-path: /
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    tryItOutEnabled: true
+    filter: true
+    syntax-highlight:
+      activated: true
+  show-actuator: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+jwt:
+  secret: ${JWT_SECRET:Yp/KI2jI5L7yM7xmcnVCGW4jO2smrdXknmXWeQ/rhaY=}
+  expiration: 86400000 # 24 hours in milliseconds
+
+logging:
+  level:
+    org:
+      pehlivan:
+        mert:
+          librarymanagementsystem: DEBUG
+      springframework:
+        web: INFO
+        security: INFO
+        data: INFO
+      hibernate: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/library-management.log
+    max-size: 10MB
+    max-history: 10
+    total-size-cap: 100MB
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 10
+      total-size-cap: 100MB
+    logger:
+      org.pehlivan.mert.librarymanagementsystem: DEBUG
+      org.springframework.security: INFO
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    acks: all
+    retries: 3
+    retry-backoff-ms: 1000
+    properties:
+      max.block.ms: 5000
+      request.timeout.ms: 30000
+  consumer:
+    group-id: ${KAFKA_CONSUMER_GROUP:notification-group}
+    auto-offset-reset: earliest
+    key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+    properties:
+      spring.json.trusted.packages: org.pehlivan.mert.librarymanagementsystem.dto
+      session.timeout.ms: 30000
+      heartbeat.interval.ms: 10000
+      max.poll.interval.ms: 300000
+    concurrency: 3
+    listener:
+      type: batch
+      ack-mode: BATCH
+      idle-between-polls: 1000
+      poll-timeout: 5000
+      batch-size: 200
+      auto-startup: true
+      missing-topics-fatal: false

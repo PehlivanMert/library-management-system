@@ -1,0 +1,67 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOCKER_IMAGE: ghcr.io/pehlivanmert/library-ok
+  DOCKER_TAG: ${{ github.sha }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Run Tests
+        run: mvn test
+
+      - name: Build Docker image
+        run: docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: pehlivanmert
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Push Docker image to GitHub Container Registry
+        run: docker push $DOCKER_IMAGE:$DOCKER_TAG
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG pehlivanmert/library-ok:$DOCKER_TAG
+          docker push pehlivanmert/library-ok:$DOCKER_TAG
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to production
+        run: |
+          echo "Deploying to production..."
+          # Burada deployment komutlarınızı ekleyebilirsiniz
+          # Örneğin: kubectl apply -f k8s/
+          # veya docker-compose up -d gibi 
