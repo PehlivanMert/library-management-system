@@ -5,7 +5,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.pehlivan.mert.librarymanagementsystem.dto.UserRegistrationNotification;
+import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRegistrationNotification;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserAlreadyExistsException;

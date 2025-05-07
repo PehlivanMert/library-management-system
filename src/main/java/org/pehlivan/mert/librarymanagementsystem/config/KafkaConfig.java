@@ -6,7 +6,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.pehlivan.mert.librarymanagementsystem.dto.UserRegistrationNotification;
+import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRegistrationNotification;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,7 +52,7 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
         configProps.put(ProducerConfig.MAX_BLOCK_MS_CONFIG, 5000);
         configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);
-        configProps.put(JsonSerializer.TYPE_MAPPINGS, "userRegistration:org.pehlivan.mert.librarymanagementsystem.dto.UserRegistrationNotification");
+        configProps.put(JsonSerializer.TYPE_MAPPINGS, "userRegistration:org.pehlivan.mert.librarymanagementsystem.dto.user.UserRegistrationNotification");
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
@@ -73,7 +73,7 @@ public class KafkaConfig {
         props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, 300000); // 5 minutes
         props.put(ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, 30000); // 30 seconds
         props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, 10000); // 10 seconds
-        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "org.pehlivan.mert.librarymanagementsystem.dto.UserRegistrationNotification");
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE, "org.pehlivan.mert.librarymanagementsystem.dto.user.UserRegistrationNotification");
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
         props.put(JsonDeserializer.USE_TYPE_INFO_HEADERS, false);
         props.put(JsonDeserializer.REMOVE_TYPE_INFO_HEADERS, true);

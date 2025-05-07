@@ -2,7 +2,7 @@ package org.pehlivan.mert.librarymanagementsystem.service.book;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.pehlivan.mert.librarymanagementsystem.event.BookAvailabilityEvent;
+import org.pehlivan.mert.librarymanagementsystem.dto.book.BookAvailabilityEvent;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Book;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class BookAvailabilityService {
-    private final Sinks.Many<BookAvailabilityEvent> bookAvailabilitySink = 
+    private final Sinks.Many<BookAvailabilityEvent> bookAvailabilitySink =
         Sinks.many().multicast().onBackpressureBuffer();
 
     public void notifyAvailabilityChange(Book book, String eventType) {
