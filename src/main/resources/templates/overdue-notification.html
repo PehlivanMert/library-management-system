@@ -14,12 +14,13 @@
             <strong th:text="${book.title}"></strong><br>
             Ödünç Alma Tarihi: <span th:text="${book.borrowedDate}"></span><br>
             Son Teslim Tarihi: <span th:text="${book.dueDate}"></span><br>
-            Gecikme Süresi: <span th:text="${book.overdueDays}"></span> gün
+            Gecikme Süresi: <span th:text="${book.overdueDays}"></span> gün<br>
+            Gecikme Cezası: <span th:text="${book.penaltyAmount}"></span> TL
         </li>
     </ul>
     
     <p>Lütfen en kısa sürede kitapları iade ediniz.</p>
-    <p>Gecikme durumunda günlük ceza uygulanacaktır.</p>
+    <p>Gecikme durumunda günlük 5 TL ceza uygulanmaktadır.</p>
     
     <p>Saygılarımızla,<br>Kütüphane Yönetimi</p>
 </body>

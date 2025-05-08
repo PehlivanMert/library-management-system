@@ -10,14 +10,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.pehlivan.mert.librarymanagementsystem.service.loan.LoanService;
+import org.pehlivan.mert.librarymanagementsystem.service.user.UserService;
 import org.pehlivan.mert.librarymanagementsystem.dto.loan.LoanRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.loan.LoanResponseDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.loan.OverdueLoanReportResponseDto;
-import org.pehlivan.mert.librarymanagementsystem.service.loan.LoanService;
+import org.pehlivan.mert.librarymanagementsystem.dto.loan.UserLoanRequestDto;
+import org.pehlivan.mert.librarymanagementsystem.exception.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 
@@ -30,8 +36,9 @@ import java.util.List;
 public class LoanController {
 
     private final LoanService loanService;
+    private final UserService userService;
 
-    @Operation(summary = "Borrow a book", description = "Creates a new loan for a book")
+    @Operation(summary = "Borrow a book", description = "Creates a new loan for a book (Librarian only)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Book borrowed successfully",
                     content = @Content(schema = @Schema(implementation = LoanResponseDto.class))),
@@ -41,10 +48,39 @@ public class LoanController {
             @ApiResponse(responseCode = "409", description = "Book not available or loan limit exceeded")
     })
     @PostMapping
-    @PreAuthorize("hasAnyRole('LIBRARIAN', 'READER')")
+    @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity<LoanResponseDto> borrowBook(@Valid @RequestBody LoanRequestDto loanRequestDto) {
-        log.info("Borrowing book with request: {}", loanRequestDto);
+        log.info("Librarian borrowing book with request: {}", loanRequestDto);
         return new ResponseEntity<>(loanService.borrowBook(loanRequestDto), HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Borrow a book for current user", description = "Creates a new loan for the authenticated user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Book borrowed successfully",
+                    content = @Content(schema = @Schema(implementation = LoanResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
+            @ApiResponse(responseCode = "403", description = "Access denied"),
+            @ApiResponse(responseCode = "404", description = "Book not found"),
+            @ApiResponse(responseCode = "409", description = "Book not available or loan limit exceeded")
+    })
+    @PostMapping("/user")
+    @PreAuthorize("hasRole('READER')")
+    public ResponseEntity<LoanResponseDto> borrowBookForUser(@Valid @RequestBody UserLoanRequestDto userLoanRequestDto) {
+        log.info("User borrowing book with request: {}", userLoanRequestDto);
+        // Get authenticated user's ID from security context
+        Long userId = getAuthenticatedUserId();
+        return new ResponseEntity<>(loanService.borrowBookForUser(userLoanRequestDto, userId), HttpStatus.CREATED);
+    }
+
+    private Long getAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            return userService.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new UserNotFoundException("User not found with email: " + userDetails.getUsername()))
+                    .getId();
+        }
+        throw new AccessDeniedException("User not authenticated");
     }
 
     @Operation(summary = "Return a book", description = "Returns a borrowed book")
@@ -118,17 +154,17 @@ public class LoanController {
         return ResponseEntity.ok(loanService.getLoanById(id));
     }
 
-    @Operation(summary = "Get overdue loan report", description = "Retrieves a detailed report of overdue loans")
+    @Operation(summary = "Generate loan report", description = "Generates and saves a detailed report of all loans to a text file")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Overdue loan report retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = OverdueLoanReportResponseDto.class))),
+            @ApiResponse(responseCode = "200", description = "Loan report generated and saved successfully"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
-            @ApiResponse(responseCode = "404", description = "No overdue loans found")
+            @ApiResponse(responseCode = "500", description = "Error generating or saving report")
     })
-    @GetMapping("/report/overdue")
+    @GetMapping("/report")
     @PreAuthorize("hasRole('LIBRARIAN')")
-    public ResponseEntity<OverdueLoanReportResponseDto> getOverdueLoanReport() {
-        log.info("Getting overdue loan report");
-        return ResponseEntity.ok(loanService.getOverdueLoanReport());
+    public ResponseEntity<String> generateLoanReport() {
+        log.info("Generating loan report");
+        String result = loanService.generateLoanReport();
+        return ResponseEntity.ok(result);
     }
 }

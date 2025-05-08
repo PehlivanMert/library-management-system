@@ -45,4 +45,6 @@ public class LoanResponseDto implements Serializable {
     private LocalDate returnDate;
     
     private LoanStatus status;
+
+    private Double penaltyAmount;
 }

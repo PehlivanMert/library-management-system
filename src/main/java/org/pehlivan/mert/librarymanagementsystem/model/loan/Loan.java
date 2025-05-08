@@ -41,6 +41,9 @@ public class Loan {
     @Column(name = "return_date")
     private LocalDate returnDate;
 
+    @Column(name = "penalty_amount")
+    private Double penaltyAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LoanStatus status;
@@ -55,7 +58,6 @@ public class Loan {
 
     @PrePersist
     protected void onCreate() {
-        borrowedDate = LocalDate.now();
         status = LoanStatus.BORROWED;
     }
 }
