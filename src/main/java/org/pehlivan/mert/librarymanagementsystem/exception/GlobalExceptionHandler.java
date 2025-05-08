@@ -1,14 +1,16 @@
 package org.pehlivan.mert.librarymanagementsystem.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookAlreadyExistsException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotAvailableException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookStockException;
-import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanAlreadyReturnedException;
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanLimitExceededException;
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanNotFoundException;
+import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanAlreadyReturnedException;
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.UserLoanHistoryNotFoundException;
+import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedRoleException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserAlreadyExistsException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserNotFoundException;
@@ -21,6 +23,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -29,6 +33,18 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    // Author Exceptions
+    @ExceptionHandler(AuthorNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorNotFoundException(AuthorNotFoundException ex) {
+        log.error("Author not found: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 
     // User Exceptions
     @ExceptionHandler(UserNotFoundException.class)
@@ -62,6 +78,17 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
+        log.error("Unauthorized access: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -105,6 +132,7 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+        log.error("Validation error: {}", errors);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
@@ -113,9 +141,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBookNotFoundException(BookNotFoundException ex) {
         log.error("Book not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.NOT_FOUND.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -124,20 +152,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBookNotAvailableException(BookNotAvailableException ex) {
         log.error("Book not available: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BookAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleBookAlreadyExistsException(BookAlreadyExistsException ex) {
         log.error("Book already exists: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.CONFLICT.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.CONFLICT.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
@@ -146,9 +174,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBookStockException(BookStockException ex) {
         log.error("Book stock error: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -158,9 +186,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLoanNotFoundException(LoanNotFoundException ex) {
         log.error("Loan not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.NOT_FOUND.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -169,9 +197,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLoanLimitExceededException(LoanLimitExceededException ex) {
         log.error("Loan limit exceeded: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -180,9 +208,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleLoanAlreadyReturnedException(LoanAlreadyReturnedException ex) {
         log.error("Loan already returned: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.BAD_REQUEST.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
@@ -191,11 +219,35 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserLoanHistoryNotFoundException(UserLoanHistoryNotFoundException ex) {
         log.error("User loan history not found: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                ex.getMessage(),
-                LocalDateTime.now()
+            HttpStatus.NOT_FOUND.value(),
+            ex.getMessage(),
+            LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String error = String.format("Parameter '%s' should be of type %s", ex.getName(), ex.getRequiredType().getSimpleName());
+        log.error("Type mismatch error: {}", error);
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                error,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        String error = "Invalid request body format";
+        log.error("Invalid request body: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                error,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
@@ -203,7 +255,7 @@ public class GlobalExceptionHandler {
         log.error("Unexpected error occurred: ", ex);
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An unexpected error occurred",
+                "An unexpected error occurred: " + ex.getMessage(),
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

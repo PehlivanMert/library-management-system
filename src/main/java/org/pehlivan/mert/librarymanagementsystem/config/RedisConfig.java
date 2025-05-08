@@ -1,7 +1,7 @@
 package org.pehlivan.mert.librarymanagementsystem.config;
 
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -72,11 +73,6 @@ public class RedisConfig {
         cacheConfigurations.put("book", defaultConfig);
         cacheConfigurations.put("bookSearch", defaultConfig);
 
-        // Loan service caches
-        cacheConfigurations.put("loans", defaultConfig);
-        cacheConfigurations.put("loan", defaultConfig);
-        cacheConfigurations.put("overdueLoans", defaultConfig);
-
         // User service caches
         cacheConfigurations.put("users", defaultConfig);
         cacheConfigurations.put("user", defaultConfig);
@@ -87,7 +83,10 @@ public class RedisConfig {
         cacheConfigurations.put("author", defaultConfig);
         cacheConfigurations.put("authorSearch", defaultConfig);
 
-
+        // Loan service caches
+        cacheConfigurations.put("loans", defaultConfig);
+        cacheConfigurations.put("loan", defaultConfig);
+        cacheConfigurations.put("overdueLoans", defaultConfig);
 
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)

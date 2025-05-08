@@ -1,6 +1,5 @@
 package org.pehlivan.mert.librarymanagementsystem;
 
-
 import lombok.RequiredArgsConstructor;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Author;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Book;
@@ -15,9 +14,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -28,17 +27,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LibraryManagementSystemApplication {
 
-    private final AuthorRepository authorRepository;
-    private final BookRepository bookRepository;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+	private final AuthorRepository authorRepository;
+	private final BookRepository bookRepository;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 
-    public static void main(String[] args) {
-        SpringApplication.run(LibraryManagementSystemApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(LibraryManagementSystemApplication.class, args);
+	}
 
 
-	 @Bean
+	/*@Bean
 	public CommandLineRunner initData() {
 		return args -> {
 			// Create LIBRARIAN user
@@ -50,6 +49,16 @@ public class LibraryManagementSystemApplication {
 					.roles(List.of(Role.LIBRARIAN))
 					.build();
 			userRepository.save(librarian);
+
+			//Create READER user
+			User reader = User.builder()
+					.username("reader")
+					.password(passwordEncoder.encode("reader123"))
+					.email("pehlivanmert@outlook.com.tr")
+					.name("Reader")
+					.roles(List.of(Role.READER))
+					.build();
+			userRepository.save(reader);
 
 			// Create authors
 			Author author1 = Author.builder()
@@ -121,5 +130,5 @@ public class LibraryManagementSystemApplication {
 					.build();
 			bookRepository.save(book4);
 		};
-	}
+	}*/
 }

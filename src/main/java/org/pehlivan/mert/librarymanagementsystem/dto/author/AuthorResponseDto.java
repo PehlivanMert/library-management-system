@@ -1,6 +1,5 @@
 package org.pehlivan.mert.librarymanagementsystem.dto.author;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthorDto {
+public class AuthorResponseDto {
     private String name;
     private String surname;
 } 

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "JWT Auth API", version = "1.0", description = "JWT ile Korunan API"))
+@OpenAPIDefinition(info = @Info(title = "Library Management System API", version = "1.0", description = "Library Management System API"))
 @SecurityScheme(
         name = "bearerAuth",
         type = SecuritySchemeType.HTTP,

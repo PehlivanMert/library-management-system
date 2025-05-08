@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.service.author.AuthorService;
 import org.springframework.http.HttpStatus;
@@ -33,13 +33,13 @@ public class AuthorController {
     @Operation(summary = "Create a new author", description = "Creates a new author in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Author created successfully",
-                    content = @Content(schema = @Schema(implementation = AuthorDto.class))),
+                    content = @Content(schema = @Schema(implementation = AuthorResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "403", description = "Access denied")
     })
     @PostMapping
     @PreAuthorize("hasRole('LIBRARIAN')")
-    public ResponseEntity<AuthorDto> createAuthor(@Valid @RequestBody AuthorRequestDto authorRequestDto) {
+    public ResponseEntity<AuthorResponseDto> createAuthor(@Valid @RequestBody AuthorRequestDto authorRequestDto) {
         log.info("Creating new author: {}", authorRequestDto);
         return new ResponseEntity<>(authorService.createAuthor(authorRequestDto), HttpStatus.CREATED);
     }
@@ -47,11 +47,11 @@ public class AuthorController {
     @Operation(summary = "Get all authors", description = "Retrieves all authors in the system")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Authors retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = AuthorDto.class))),
+                    content = @Content(schema = @Schema(implementation = AuthorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "No authors found")
     })
     @GetMapping
-    public ResponseEntity<List<AuthorDto>> getAllAuthors() {
+    public ResponseEntity<List<AuthorResponseDto>> getAllAuthors() {
         log.info("Getting all authors");
         return ResponseEntity.ok(authorService.getAllAuthors());
     }
@@ -59,11 +59,11 @@ public class AuthorController {
     @Operation(summary = "Get author by ID", description = "Retrieves a specific author by their ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Author retrieved successfully",
-                    content = @Content(schema = @Schema(implementation = AuthorDto.class))),
+                    content = @Content(schema = @Schema(implementation = AuthorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "Author not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorDto> getAuthorById(@PathVariable Long id) {
+    public ResponseEntity<AuthorResponseDto> getAuthorById(@PathVariable Long id) {
         log.info("Getting author by id: {}", id);
         return ResponseEntity.ok(authorService.getAuthor(id));
     }
@@ -71,14 +71,14 @@ public class AuthorController {
     @Operation(summary = "Update an author", description = "Updates an existing author's information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Author updated successfully",
-                    content = @Content(schema = @Schema(implementation = AuthorDto.class))),
+                    content = @Content(schema = @Schema(implementation = AuthorResponseDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "403", description = "Access denied"),
             @ApiResponse(responseCode = "404", description = "Author not found")
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('LIBRARIAN')")
-    public ResponseEntity<AuthorDto> updateAuthor(@PathVariable Long id, @Valid @RequestBody AuthorRequestDto authorRequestDto) {
+    public ResponseEntity<AuthorResponseDto> updateAuthor(@PathVariable Long id, @Valid @RequestBody AuthorRequestDto authorRequestDto) {
         log.info("Updating author with id {}: {}", id, authorRequestDto);
         return ResponseEntity.ok(authorService.updateAuthor(id, authorRequestDto));
     }

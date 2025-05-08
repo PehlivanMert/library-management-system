@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Author;
@@ -52,7 +52,7 @@ public class AuthorService {
 
     @Transactional
     @CacheEvict(allEntries = true)
-    public AuthorDto createAuthor(AuthorRequestDto authorRequestDto) {
+    public AuthorResponseDto createAuthor(AuthorRequestDto authorRequestDto) {
         log.info("Creating author: {}", authorRequestDto);
         if (authorRequestDto.getSurname() == null || authorRequestDto.getSurname().trim().isEmpty()) {
             throw new IllegalArgumentException("Author surname cannot be null or empty");
@@ -68,7 +68,7 @@ public class AuthorService {
         totalAuthorsCounter.increment();
         newAuthorsCounter.increment();
         
-        return modelMapper.map(savedAuthor, AuthorDto.class);
+        return modelMapper.map(savedAuthor, AuthorResponseDto.class);
     }
 
     @Cacheable(key = "'author:' + #id", unless = "#result == null")
@@ -88,29 +88,29 @@ public class AuthorService {
     }
 
     @Cacheable(key = "'author-dto:' + #id", unless = "#result == null")
-    public AuthorDto getAuthor(Long id) {
-        return modelMapper.map(getAuthorById(id), AuthorDto.class);
+    public AuthorResponseDto getAuthor(Long id) {
+        return modelMapper.map(getAuthorById(id), AuthorResponseDto.class);
     }
 
     @Transactional(readOnly = true)
     @Cacheable(key = "'all-authors'", unless = "#result.isEmpty()")
-    public List<AuthorDto> getAllAuthors() {
+    public List<AuthorResponseDto> getAllAuthors() {
         log.info("Getting all authors");
         return authorRepository.findAll().stream()
-                .map(author -> modelMapper.map(author, AuthorDto.class))
+                .map(author -> modelMapper.map(author, AuthorResponseDto.class))
                 .collect(Collectors.toList());
     }
 
     @Transactional
     @CachePut(key = "'author:' + #id")
     @CacheEvict(key = "'all-authors'")
-    public AuthorDto updateAuthor(Long id, AuthorRequestDto authorRequestDto) {
+    public AuthorResponseDto updateAuthor(Long id, AuthorRequestDto authorRequestDto) {
         log.info("Updating author with id: {}", id);
         Author existingAuthor = getAuthorById(id);
         Author author = modelMapper.map(authorRequestDto, Author.class);
         author.setId(existingAuthor.getId());
         Author updatedAuthor = authorRepository.save(author);
-        return modelMapper.map(updatedAuthor, AuthorDto.class);
+        return modelMapper.map(updatedAuthor, AuthorResponseDto.class);
     }
 
     @Transactional
