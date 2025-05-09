@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthorResponseDto {
+    private Long id;
     private String name;
     private String surname;
 } 
