@@ -70,6 +70,7 @@ The system follows a clean, layered architecture pattern:
 - Kafka (olay akışı / event streaming)
 - Prometheus & Grafana (izleme / monitoring)
 - Flyway (veritabanı migrasyonları / database migrations)
+- Rate Limiting (istek sınırlama / request limiting)
 
 <div align="center">
   <img src="docs/Infrastructure.svg" alt="Infrastructure Diagram" width="600"/>
@@ -88,14 +89,13 @@ The system follows a clean, layered architecture pattern:
 ### Kullanıcı Yönetimi / User Management
 - Kullanıcı kaydı ve kimlik doğrulama / User registration and authentication
 - Rol tabanlı erişim kontrolü / Role-based access control
-- Kullanıcı profili yönetimi / User profile management
-- Aktivite takibi / Activity tracking
+
 
 ### Ödünç Alma Sistemi / Borrowing System
 - Kitap ödünç alma ve iade / Book borrowing and returning
 - Son tarih yönetimi / Due date management
 - Geç iade cezaları / Late return penalties
-- Rezervasyon sistemi / Reservation system
+
 
 ### Bildirim Sistemi / Notification System
 - E-posta bildirimleri / Email notifications
@@ -155,7 +155,7 @@ The system follows a clean, layered architecture pattern:
 
 1. Projeyi klonlayın / Clone the repository:
 ```bash
-git clone https://github.com/yourusername/library-management-system.git
+git clone https://github.com/pehlivanmert/library-management-system.git
 cd library-management-system
 ```
 
@@ -175,8 +175,8 @@ mvn spring-boot:run
 ```
 
 ### Varsayılan Kimlik Bilgileri / Default Credentials
-- Admin: admin/admin123
-- Kullanıcı / User: user/user123
+- Reader: librarian@library.com/librarian123
+- Okuyucu / Reader: reader@reader.com/reader123
 
 ## 📚 Dokümantasyon / Documentation
 
@@ -204,11 +204,11 @@ mvn test
 # Kapsam ile çalıştır / Run with coverage
 mvn verify
 ```
-
+Test kapsamını görüntülemek için `target/site/jacoco/index.html` dosyasını açın / Open `target/site/jacoco/index.html` file to view test coverage.
 ### Kod Stili / Code Style
 - Google Java Style Guide'ı takip edin / Follow Google Java Style Guide
 - Boilerplate'i azaltmak için Lombok kullanın / Use Lombok for reducing boilerplate
-- Minimum %50 test kapsamını koruyun / Maintain minimum 50% test coverage
+- Minimum %60 test kapsamını koruyun / Maintain minimum 60% test coverage
 
 ### Derleme / Building
 ```bash
@@ -231,13 +231,7 @@ java -jar target/library-management-system.jar --spring.profiles.active=dev
 1. README.md'yi değişikliklerle güncelleyin / Update the README.md with details of changes
 2. `docs` dizinindeki dokümantasyonu güncelleyin / Update the documentation in the `docs` directory
 3. Tüm testlerin geçtiğinden emin olun / Ensure all tests pass
-4. Kod kapsamını %50'nin üzerinde tutun / Maintain code coverage above 50%
-
-## 📄 Lisans / License
-
-Bu proje MIT lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+4. Kod kapsamını %60'ın üzerinde tutun / Maintain code coverage above 60%
 
 ## 🐳 Docker Kullanımı / Docker Usage
 

@@ -54,7 +54,7 @@ public class LibraryManagementSystemApplication {
 			User reader = User.builder()
 					.username("reader")
 					.password(passwordEncoder.encode("reader123"))
-					.email("pehlivanmert@outlook.com.tr")
+					.email("reader@reader.com")
 					.name("Reader")
 					.roles(List.of(Role.READER))
 					.build();
