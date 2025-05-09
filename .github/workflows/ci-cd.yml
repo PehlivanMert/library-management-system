@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  DOCKER_IMAGE: ghcr.io/pehlivanmert/library-ok
+  DOCKER_IMAGE: ghcr.io/pehlivanmert/library-management-system
   DOCKER_TAG: ${{ github.sha }}
 
 jobs:
@@ -48,8 +48,8 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker tag $DOCKER_IMAGE:$DOCKER_TAG pehlivanmert/library-ok:$DOCKER_TAG
-          docker push pehlivanmert/library-ok:$DOCKER_TAG
+          docker tag $DOCKER_IMAGE:$DOCKER_TAG pehlivanmert/library-management-system:$DOCKER_TAG
+          docker push pehlivanmert/library-management-system:$DOCKER_TAG
 
   deploy:
     needs: build-and-test
