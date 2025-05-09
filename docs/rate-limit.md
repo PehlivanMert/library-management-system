@@ -18,8 +18,8 @@ public class RateLimitConfig {
     @Bean
     public Bucket createNewBucket() {
         // Her kullanıcı için 100 istek hakkı
-        // Her 5 dakikada 100 token yenilenir
-        Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(5));
+        // Her 15 dakikada 100 token yenilenir
+        Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(15));
         return Bucket4j.builder()
                 .addLimit(limit)
                 .build();
@@ -30,7 +30,7 @@ public class RateLimitConfig {
 ### Limitler / Limits
 
 #### Türkçe
-- Her kullanıcı için 5 dakikada 100 istek hakkı
+- Her kullanıcı için 15 dakikada 100 istek hakkı
 - Limit aşıldığında 429 (Too Many Requests) hatası
 - Sadece `/api/**` endpoint'leri için geçerli
 

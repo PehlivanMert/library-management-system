@@ -85,23 +85,17 @@ src/main/java/org/pehlivan/mert/librarymanagementsystem/
 │   │   ├── SecurityConfig.java
 │   │   └── JwtConfig.java
 │   ├── jwt/                      # JWT İşlemleri
-│   │   ├── JwtService.java
-│   │   └── JwtFilter.java
-│   └── service/                  # Güvenlik Servisleri
-│       └── SecurityService.java
+│       ├── JwtService.java
+│       └── JwtFilter.java
+│   
 │
 ├── exception/                    # Hata Yönetimi Katmanı
 │   ├── handler/                  # Hata İşleyicileri
 │   │   └── GlobalExceptionHandler.java
-│   └── model/                    # Özel Hata Sınıfları
+│   └── /                    # Özel Hata Sınıfları
 │       ├── BusinessException.java
 │       └── TechnicalException.java
-│
-└── event/                        # Olay Yönetimi Katmanı
-    ├── producer/                 # Olay Üreticileri
-    │   └── UserRegistrationProducer.java
-    └── consumer/                 # Olay Tüketicileri
-        └── UserRegistrationConsumer.java
+
 ```
 
 ## Katmanlar ve Sorumluluklar

@@ -235,6 +235,13 @@ java -jar target/library-management-system.jar --spring.profiles.active=dev
 
 ## 🐳 Docker Kullanımı / Docker Usage
 
+### Uygulamayı direkt docker hubtan indirin / Pull the application directly from Docker Hub
+```bash
+docker pull pehlivanmert/library-management-system:e0b605aba84b9662d12cd58087d5a1730410c9b7
+docker run -p 8080:8080 pehlivanmert/library-management-system:e0b605aba84b9662d12cd58087d5a1730410c9b7
+```
+
+
 ### Seçenek 1: Tüm Servisler (Uygulama Dahil) / Option 1: All Services (Including Application)
 
 Tüm servisleri (uygulama dahil) Docker ile başlatmak için:
@@ -282,7 +289,7 @@ docker compose up
 docker compose down
 
 # Logları görüntüle / View logs
-docker compose logs -f
+`docker compose logs -f`
 ```
 
 ### Seçenek 2: Sadece Altyapı Servisleri / Option 2: Infrastructure Services Only
