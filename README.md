@@ -10,6 +10,7 @@
 - [Geliştirme / Development](#geliştirme--development)
 - [Katkıda Bulunma / Contributing](#katkıda-bulunma--contributing)
 - [Lisans / License](#lisans--license)
+- [Docker Kullanımı / Docker Usage](#docker-kullanımı--docker-usage)
 
 ## 🎯 Hakkında / About
 
@@ -57,8 +58,8 @@ The system follows a clean, layered architecture pattern:
    - Rol tabanlı yetkilendirme / Role-based authorization
    - Güvenlik yapılandırmaları / Security configurations
 
-<div align="left">
-  <img src="docs/class.svg" alt="Class Diagram" width="1000"/>
+<div align="center">
+  <img src="docs/class.svg" alt="Class Diagram" width="600"/>
   <br/>
   <em>Sınıf Diyagramı / Class Diagram</em>
 </div>
@@ -70,8 +71,8 @@ The system follows a clean, layered architecture pattern:
 - Prometheus & Grafana (izleme / monitoring)
 - Flyway (veritabanı migrasyonları / database migrations)
 
-<div align="left">
-  <img src="docs/Infrastructure.svg" alt="Infrastructure Diagram" width="1000"/>
+<div align="center">
+  <img src="docs/Infrastructure.svg" alt="Infrastructure Diagram" width="600"/>
   <br/>
   <em>Altyapı Diyagramı / Infrastructure Diagram</em>
 </div>
@@ -82,17 +83,19 @@ The system follows a clean, layered architecture pattern:
 - Kitap ekleme, güncelleme, silme / Add, update, delete books
 - Kitap arama ve filtreleme / Search and filter books
 - Kitap kullanılabilirlik takibi / Track book availability
+- Kitap kategorileri yönetimi / Manage book categories
 
 ### Kullanıcı Yönetimi / User Management
 - Kullanıcı kaydı ve kimlik doğrulama / User registration and authentication
 - Rol tabanlı erişim kontrolü / Role-based access control
-
+- Kullanıcı profili yönetimi / User profile management
+- Aktivite takibi / Activity tracking
 
 ### Ödünç Alma Sistemi / Borrowing System
 - Kitap ödünç alma ve iade / Book borrowing and returning
 - Son tarih yönetimi / Due date management
 - Geç iade cezaları / Late return penalties
-
+- Rezervasyon sistemi / Reservation system
 
 ### Bildirim Sistemi / Notification System
 - E-posta bildirimleri / Email notifications
@@ -138,9 +141,6 @@ The system follows a clean, layered architecture pattern:
 - OpenAPI/Swagger
 - SpringDoc
 
-### Rate Limiting
-- Bucket4j
-
 ## 🚀 Başlangıç / Getting Started
 
 ### Ön Koşullar / Prerequisites
@@ -175,12 +175,8 @@ mvn spring-boot:run
 ```
 
 ### Varsayılan Kimlik Bilgileri / Default Credentials
-- Librarian
-  - Kullanıcı adı: `librarian`
-  - Şifre: `librarian123`
-- Reader
-  - Kullanıcı adı: `reader`
-  - Şifre: `reader123`
+- Admin: admin/admin123
+- Kullanıcı / User: user/user123
 
 ## 📚 Dokümantasyon / Documentation
 
@@ -198,6 +194,7 @@ Detaylı dokümantasyon `docs` dizininde bulunmaktadır / Detailed documentation
 - [Reaktif Programlama / Reactive Programming](docs/reactive.md)
 - [Rate Limiting / İstek Sınırlama](docs/rate-limit.md)
 
+## 💻 Geliştirme / Development
 
 ### Testleri Çalıştırma / Running Tests
 ```bash
@@ -207,6 +204,11 @@ mvn test
 # Kapsam ile çalıştır / Run with coverage
 mvn verify
 ```
+
+### Kod Stili / Code Style
+- Google Java Style Guide'ı takip edin / Follow Google Java Style Guide
+- Boilerplate'i azaltmak için Lombok kullanın / Use Lombok for reducing boilerplate
+- Minimum %50 test kapsamını koruyun / Maintain minimum 50% test coverage
 
 ### Derleme / Building
 ```bash
@@ -231,6 +233,140 @@ java -jar target/library-management-system.jar --spring.profiles.active=dev
 3. Tüm testlerin geçtiğinden emin olun / Ensure all tests pass
 4. Kod kapsamını %50'nin üzerinde tutun / Maintain code coverage above 50%
 
+## 📄 Lisans / License
+
+Bu proje MIT lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🐳 Docker Kullanımı / Docker Usage
+
+### Seçenek 1: Tüm Servisler (Uygulama Dahil) / Option 1: All Services (Including Application)
+
+Tüm servisleri (uygulama dahil) Docker ile başlatmak için:
+
+#### Docker Compose CLI / Docker Compose CLI
+```bash
+# İlk kez çalıştırma veya Dockerfile değişikliği sonrası / First run or after Dockerfile changes
+# Arka planda çalıştırma / Run in background
+docker-compose up -d --build
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker-compose up --build
+
+# Sonraki çalıştırmalarda / For subsequent runs
+# Arka planda çalıştırma / Run in background
+docker-compose up -d
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker-compose up
+
+# Servisleri durdur / Stop services
+docker-compose down
+
+# Logları görüntüle / View logs
+docker-compose logs -f
+```
+
+#### Docker Compose Plugin / Docker Compose Plugin
+```bash
+# İlk kez çalıştırma veya Dockerfile değişikliği sonrası / First run or after Dockerfile changes
+# Arka planda çalıştırma / Run in background
+docker compose up -d --build
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker compose up --build
+
+# Sonraki çalıştırmalarda / For subsequent runs
+# Arka planda çalıştırma / Run in background
+docker compose up -d
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker compose up
+
+# Servisleri durdur / Stop services
+docker compose down
+
+# Logları görüntüle / View logs
+docker compose logs -f
+```
+
+### Seçenek 2: Sadece Altyapı Servisleri / Option 2: Infrastructure Services Only
+
+Sadece altyapı servislerini (PostgreSQL, Redis, Kafka, vb.) başlatıp, uygulamayı IDE'den çalıştırmak için:
+
+#### Docker Compose CLI / Docker Compose CLI
+```bash
+# İlk kez çalıştırma / First run
+# Arka planda çalıştırma / Run in background
+docker-compose -f docker-compose.dev.yml up -d
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker-compose -f docker-compose.dev.yml up
+
+# Servisleri durdur / Stop services
+docker-compose -f docker-compose.dev.yml down
+
+# Logları görüntüle / View logs
+docker-compose -f docker-compose.dev.yml logs -f
+```
+
+#### Docker Compose Plugin / Docker Compose Plugin
+```bash
+# İlk kez çalıştırma / First run
+# Arka planda çalıştırma / Run in background
+docker compose -f docker-compose.dev.yml up -d
+
+# Terminal'de logları görüntüleyerek çalıştırma / Run with logs in terminal
+docker compose -f docker-compose.dev.yml up
+
+# Servisleri durdur / Stop services
+docker compose -f docker-compose.dev.yml down
+
+# Logları görüntüle / View logs
+docker compose -f docker-compose.dev.yml logs -f
+```
+
+> **Not / Note**: 
+> - `-d` parametresi (detached mode) container'ları arka planda çalıştırır
+> - `-d` olmadan çalıştırırsanız, tüm container logları terminal'de görüntülenir
+> - `--build` parametresi sadece ana `docker-compose.yml` dosyası için gereklidir çünkü uygulama servisini içerir
+> - `docker-compose.dev.yml` için `--build` gerekli değildir çünkü sadece hazır Docker image'larını kullanır
+> - Docker Compose Plugin (`docker compose`) ve Docker Compose CLI (`docker-compose`) komutları aynı işlevi görür, sadece yazım şekli farklıdır
+
+### Servis Portları / Service Ports
+
+- Uygulama / Application: http://localhost:8080
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+- Kafka: localhost:9092
+- Kafka UI: http://localhost:8090
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000
+
+### Veritabanı Bağlantısı / Database Connection
+
+IDE'den bağlanmak için:
+- Host: localhost
+- Port: 5432
+- Database: library
+- Username: postgres
+- Password: postgres
+
+> **Not / Note**: Veritabanı otomatik olarak oluşturulur ve yapılandırılır. PostgreSQL container'ı başlatıldığında:
+> - `library` veritabanı otomatik olarak oluşturulur
+> - `src/main/resources/db/migration` dizinindeki SQL dosyaları çalıştırılır
+> - Tablolar ve başlangıç verileri otomatik olarak oluşturulur
+
+### Grafana Erişimi / Grafana Access
+
+- URL: http://localhost:3000
+- Username: admin
+- Password: admin
+
+### Kafka UI Erişimi / Kafka UI Access
+
+- URL: http://localhost:8090
 
 ---
 

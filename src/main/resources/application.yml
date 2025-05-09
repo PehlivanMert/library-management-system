@@ -146,7 +146,9 @@ springdoc:
 
 jwt:
   secret: ${JWT_SECRET:Yp/KI2jI5L7yM7xmcnVCGW4jO2smrdXknmXWeQ/rhaY=}
-  expiration: 86400000 # 24 hours in milliseconds
+  expiration: ${JWT_EXPIRATION:3600000}
+  # secret: ${JWT_SECRET:your-secret-key-here-must-be-at-least-256-bits-long}
+  # expiration: 86400000 # 24 hours in milliseconds
 
 logging:
   level:
