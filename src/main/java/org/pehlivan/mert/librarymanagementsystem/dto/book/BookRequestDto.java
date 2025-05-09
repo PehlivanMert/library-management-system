@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.ISBN;
 import org.pehlivan.mert.librarymanagementsystem.model.book.BookType;
 
 import java.util.Date;
@@ -21,8 +20,7 @@ public class BookRequestDto {
     private String title;
 
     @NotBlank(message = "ISBN is required")
-    @ISBN(message = "ISBN is invalid")
-    @Size(min = 10, max = 13, message = "ISBN must be between 10 and 13 characters")
+    @Pattern(regexp = "^97[89]\\d{10}$", message = "ISBN must be a valid ISBN-13 number")
     private String isbn;
 
     @NotNull(message = "Stock is required")

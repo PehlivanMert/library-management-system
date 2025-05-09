@@ -1,8 +1,5 @@
 package org.pehlivan.mert.librarymanagementsystem.service.author;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -17,6 +14,9 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@CacheConfig(cacheNames = "authors", cacheManager = "redisCacheManager")
+@CacheConfig(cacheNames = "author", cacheManager = "redisCacheManager")
 public class AuthorService {
 
     private final AuthorRepository authorRepository;
@@ -37,17 +37,9 @@ public class AuthorService {
 
     @PostConstruct
     public void init() {
-        totalAuthorsCounter = Counter.builder("library.authors.total")
-                .description("Total number of authors")
-                .register(meterRegistry);
-
-        booksPerAuthorCounter = Counter.builder("library.authors.books_per_author")
-                .description("Number of books per author")
-                .register(meterRegistry);
-
-        newAuthorsCounter = Counter.builder("library.authors.new")
-                .description("Number of new author registrations")
-                .register(meterRegistry);
+        totalAuthorsCounter = meterRegistry.counter("library.authors.total");
+        booksPerAuthorCounter = meterRegistry.counter("library.authors.books.per.author");
+        newAuthorsCounter = meterRegistry.counter("library.authors.new");
     }
 
     @Transactional
@@ -71,14 +63,16 @@ public class AuthorService {
         return modelMapper.map(savedAuthor, AuthorResponseDto.class);
     }
 
-    @Cacheable(key = "'author:' + #id", unless = "#result == null")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'id:' + #id", unless = "#result == null")
     public Author getAuthorById(Long id) {
         log.info("Getting author by id: {}", id);
         return authorRepository.findById(id)
                 .orElseThrow(() -> new AuthorNotFoundException("Author not found with id: " + id));
     }
 
-    @Cacheable(key = "'author:' + #name + ':' + #surname", unless = "#result == null")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'name:' + #name + ':' + #surname", unless = "#result == null")
     public Author getAuthorByNameAndSurname(String name, String surname) {
         log.info("Getting author by name: {} and surname: {}", name, surname);
         return authorRepository.findByNameAndSurname(name, surname)
@@ -87,13 +81,14 @@ public class AuthorService {
                 .orElseThrow(() -> new AuthorNotFoundException("Author not found with name: " + name + " and surname: " + surname));
     }
 
-    @Cacheable(key = "'author-dto:' + #id", unless = "#result == null")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'dto:' + #id", unless = "#result == null")
     public AuthorResponseDto getAuthor(Long id) {
         return modelMapper.map(getAuthorById(id), AuthorResponseDto.class);
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(key = "'all-authors'", unless = "#result.isEmpty()")
+    @Cacheable(key = "'all'", unless = "#result.isEmpty()")
     public List<AuthorResponseDto> getAllAuthors() {
         log.info("Getting all authors");
         return authorRepository.findAll().stream()
@@ -102,24 +97,44 @@ public class AuthorService {
     }
 
     @Transactional
-    @CachePut(key = "'author:' + #id")
-    @CacheEvict(key = "'all-authors'")
+    @CacheEvict(allEntries = true)
     public AuthorResponseDto updateAuthor(Long id, AuthorRequestDto authorRequestDto) {
         log.info("Updating author with id: {}", id);
         Author existingAuthor = getAuthorById(id);
-        Author author = modelMapper.map(authorRequestDto, Author.class);
-        author.setId(existingAuthor.getId());
-        Author updatedAuthor = authorRepository.save(author);
+
+        // Yazar bilgileri değişiyorsa, ilişkili kitapları da güncelle
+        if (!existingAuthor.getName().equals(authorRequestDto.getName()) || 
+            !existingAuthor.getSurname().equals(authorRequestDto.getSurname())) {
+            
+            // Yeni isim-soyisim kombinasyonu başka bir yazara ait mi kontrol et
+            if (authorRepository.existsByNameAndSurname(authorRequestDto.getName(), authorRequestDto.getSurname())) {
+                throw new IllegalArgumentException("Author with name " + authorRequestDto.getName() + 
+                    " and surname " + authorRequestDto.getSurname() + " already exists");
+            }
+
+            // Yazar bilgilerini güncelle
+            existingAuthor.setName(authorRequestDto.getName());
+            existingAuthor.setSurname(authorRequestDto.getSurname());
+            
+            // İlişkili kitapları güncelle
+            existingAuthor.getBooks().forEach(book -> {
+                book.setAuthor(existingAuthor);
+            });
+        }
+
+        Author updatedAuthor = authorRepository.save(existingAuthor);
         return modelMapper.map(updatedAuthor, AuthorResponseDto.class);
     }
 
     @Transactional
-    @CacheEvict(key = "{'author:' + #id, 'author-dto:' + #id, 'all-authors'}")
+    @CacheEvict(allEntries = true)
     public void deleteAuthor(Long id) {
         log.info("Deleting author with id: {}", id);
         authorRepository.deleteById(id);
     }
 
+    @Transactional
+    @CacheEvict(allEntries = true)
     public void updateAuthorBooks(Long authorId, int bookCount) {
         log.info("Updating book count for author: {}", authorId);
         Author author = getAuthorById(authorId);

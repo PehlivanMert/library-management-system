@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.pehlivan.mert.librarymanagementsystem.dto.book.BookAvailabilityEvent;
+import org.pehlivan.mert.librarymanagementsystem.event.BookAvailabilityEvent;
 import org.pehlivan.mert.librarymanagementsystem.service.book.BookAvailabilityService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;

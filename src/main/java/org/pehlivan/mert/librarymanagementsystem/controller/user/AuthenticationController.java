@@ -2,11 +2,11 @@ package org.pehlivan.mert.librarymanagementsystem.controller.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;

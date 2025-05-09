@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.ISBN;
 import org.pehlivan.mert.librarymanagementsystem.model.loan.Loan;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Builder
@@ -32,7 +32,7 @@ public class Book {
     private String title;
 
     @NotBlank(message = "ISBN is required")
-    @ISBN(message = "ISBN is invalid")
+    @Pattern(regexp = "^97[89]\\d{10}$", message = "ISBN must be a valid ISBN-13 number")
     private String isbn;
 
     @Min(value = 0, message = "Stock cannot be negative")

@@ -12,8 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.pehlivan.mert.librarymanagementsystem.model.loan.Loan;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 @Data
 @Builder

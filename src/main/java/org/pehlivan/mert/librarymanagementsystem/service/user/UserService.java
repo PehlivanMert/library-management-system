@@ -3,7 +3,6 @@ package org.pehlivan.mert.librarymanagementsystem.service.user;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRegistrationNotification;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
@@ -76,7 +75,7 @@ public class UserService {
         try {
             User createdUser = userRepository.save(user);
             log.info("User created successfully with id: {} and roles: {}", createdUser.getId(), createdUser.getRoles());
-
+            
             totalUsersCounter.increment();
             activeUsersCounter.increment();
             newUsersCounter.increment();
@@ -85,22 +84,22 @@ public class UserService {
             try {
                 log.info("=== Starting Kafka message sending process ===");
                 log.info("Preparing Kafka message for user registration: {}", createdUser.getEmail());
-
+                
                 UserRegistrationNotification notification = new UserRegistrationNotification(
-                        createdUser.getEmail(),
-                        createdUser.getUsername()
+                    createdUser.getEmail(),
+                    createdUser.getUsername()
                 );
-
+                
                 log.info("Kafka message content: {}", notification);
                 log.info("Sending Kafka message to user-registration topic");
-
+                
                 kafkaTemplate.send("user-registration", notification)
                         .whenComplete((result, ex) -> {
                             if (ex == null) {
                                 log.info("Kafka message sent successfully for user: {}", createdUser.getEmail());
-                                log.info("Message sent to partition: {}, offset: {}",
-                                        result.getRecordMetadata().partition(),
-                                        result.getRecordMetadata().offset());
+                                log.info("Message sent to partition: {}, offset: {}", 
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
                             } else {
                                 log.error("Failed to send Kafka message for user: {}", createdUser.getEmail(), ex);
                             }
@@ -110,7 +109,7 @@ public class UserService {
                 log.error("Error sending Kafka message for user registration: {}", createdUser.getEmail(), e);
                 // Don't throw the exception as the user is already saved
             }
-
+            
             return modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
             log.error("An unexpected error occurred in createUser method", e);
@@ -143,7 +142,7 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(key = "{'id:' + #id, 'all'}")
+    @CacheEvict(allEntries = true)
     public UserResponseDto updateUser(Long id, UserRequestDto userRequestDto) {
         log.info("Entering updateUser method for id: {}", id);
         User existingUser = userRepository.findById(id).orElseThrow(
@@ -167,7 +166,7 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(key = "{'id:' + #id, 'all'}")
+    @CacheEvict(allEntries = true)
     public void deleteUser(Long id) {
         log.info("Entering deleteUser method for id: {}", id);
         User user = userRepository.findById(id).orElseThrow(() -> {
@@ -175,10 +174,10 @@ public class UserService {
             return new UserNotFoundException("User not found with id: " + id);
         });
         userRepository.delete(user);
-
+        
         totalUsersCounter.increment(-1);
         activeUsersCounter.increment(-1);
-
+        
         log.info("User deleted successfully with id: {}", id);
     }
 
@@ -201,14 +200,14 @@ public class UserService {
             log.warn("No authenticated user found");
             return false;
         }
-
+        
         String currentUsername = authentication.getName();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.error("User not found with id: {}", userId);
                     return new UserNotFoundException("User not found with id: " + userId);
                 });
-
+        
         boolean isCurrentUser = user.getUsername().equals(currentUsername);
         log.info("User {} is{} the current user", userId, isCurrentUser ? "" : " not");
         return isCurrentUser;
@@ -220,14 +219,14 @@ public class UserService {
             log.warn("No authenticated user found");
             return false;
         }
-
+        
         String currentUsername = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("User not found with email: {}", email);
                     return new UserNotFoundException("User not found with email: " + email);
                 });
-
+        
         boolean isCurrentUser = user.getUsername().equals(currentUsername);
         log.info("User with email {} is{} the current user", email, isCurrentUser ? "" : " not");
         return isCurrentUser;
@@ -244,6 +243,8 @@ public class UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'username:' + #username", unless = "#result == null")
     public User getUserByUsername(String username) {
         log.info("Getting user entity for username: {}", username);
         User user = userRepository.findByUsername(username)
@@ -256,7 +257,7 @@ public class UserService {
     }
 
     @Transactional
-    @CacheEvict(key = "{'id:' + #id, 'all'}")
+    @CacheEvict(allEntries = true)
     public UserResponseDto updateUserSelf(Long id, UserUpdateRequestDto userUpdateRequestDto) {
         log.info("Entering updateUserSelf method for id: {}", id);
         User existingUser = userRepository.findById(id).orElseThrow(

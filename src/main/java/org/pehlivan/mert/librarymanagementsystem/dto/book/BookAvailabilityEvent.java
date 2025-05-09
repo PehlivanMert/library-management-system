@@ -16,5 +16,5 @@ public class BookAvailabilityEvent {
     private String bookTitle;
     private boolean available;
     private LocalDateTime timestamp;
-    private String eventType;
+    private String eventType; // BORROWED, RETURNED, UPDATED
 } 

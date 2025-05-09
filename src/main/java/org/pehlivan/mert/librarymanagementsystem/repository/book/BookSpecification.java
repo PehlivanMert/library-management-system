@@ -2,8 +2,8 @@ package org.pehlivan.mert.librarymanagementsystem.repository.book;
 
 import org.pehlivan.mert.librarymanagementsystem.dto.book.BookSearchCriteriaDTO;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Book;
-import org.pehlivan.mert.librarymanagementsystem.model.book.BookStatus;
 import org.pehlivan.mert.librarymanagementsystem.model.book.BookType;
+import org.pehlivan.mert.librarymanagementsystem.model.book.BookStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BookSpecification {

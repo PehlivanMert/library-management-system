@@ -15,9 +15,9 @@ public class RateLimitConfig {
     @Bean
     public Bucket createNewBucket() {
         // Her kullanıcı için 100 istek hakkı
-        // Her 5 dakikada 100 token yenilenir
-        Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(5));
-        return Bucket.builder()
+        // Her 15 dakikada 100 token yenilenir
+        Bandwidth limit = Bandwidth.simple(100, Duration.ofMinutes(15));
+        return Bucket4j.builder()
                 .addLimit(limit)
                 .build();
     }

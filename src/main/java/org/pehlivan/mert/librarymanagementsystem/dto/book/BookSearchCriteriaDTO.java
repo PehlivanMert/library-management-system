@@ -1,8 +1,8 @@
 package org.pehlivan.mert.librarymanagementsystem.dto.book;
 
 import lombok.Data;
-import org.pehlivan.mert.librarymanagementsystem.model.book.BookStatus;
 import org.pehlivan.mert.librarymanagementsystem.model.book.BookType;
+import org.pehlivan.mert.librarymanagementsystem.model.book.BookStatus;
 
 @Data
 public class BookSearchCriteriaDTO {

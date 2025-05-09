@@ -1,7 +1,5 @@
 package org.pehlivan.mert.librarymanagementsystem.service.book;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,10 +7,11 @@ import org.modelmapper.ModelMapper;
 import org.pehlivan.mert.librarymanagementsystem.dto.book.BookRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.book.BookResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.book.BookSearchCriteriaDTO;
+import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookAlreadyExistsException;
-import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotAvailableException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookStockException;
+import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotAvailableException;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Author;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Book;
 import org.pehlivan.mert.librarymanagementsystem.model.book.BookStatus;
@@ -27,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,21 +58,13 @@ public class BookService {
                 mapper.map(src -> src.getAuthor().getSurname(), BookResponseDto::setAuthorSurname);
             });
 
-        totalBooksCounter = Counter.builder("library_books_total")
-                .description("Total number of books")
-                .register(meterRegistry);
-
-        categoryBooksCounter = Counter.builder("library_books_category")
-                .description("Number of books by category")
-                .register(meterRegistry);
-
-        stockChangeCounter = Counter.builder("library_books_stock_change")
-                .description("Changes in book stock")
-                .register(meterRegistry);
+        totalBooksCounter = meterRegistry.counter("library.books.total");
+        categoryBooksCounter = meterRegistry.counter("library.books.category");
+        stockChangeCounter = meterRegistry.counter("library.books.stock.change");
     }
 
     @Transactional
-    @CacheEvict(key = "{'all', 'id:' + #result.id}")
+    @CacheEvict(allEntries = true)
     public BookResponseDto createBook(BookRequestDto bookRequestDto) {
         log.info("Creating new book: {}", bookRequestDto.getTitle());
         
@@ -86,12 +79,11 @@ public class BookService {
         }
 
         Author author = authorRepository.findByNameAndSurname(bookRequestDto.getAuthorName(), bookRequestDto.getAuthorSurname())
-                .orElseGet(() -> {
-                    Author newAuthor = Author.builder()
-                            .name(bookRequestDto.getAuthorName())
-                            .surname(bookRequestDto.getAuthorSurname())
-                            .build();
-                    return authorRepository.save(newAuthor);
+                .orElseThrow(() -> {
+                    log.error("Author not found with name: {} and surname: {}", 
+                            bookRequestDto.getAuthorName(), bookRequestDto.getAuthorSurname());
+                    return new AuthorNotFoundException("Author not found with name: " + 
+                            bookRequestDto.getAuthorName() + " and surname: " + bookRequestDto.getAuthorSurname());
                 });
 
         if (bookRepository.existsByTitleAndAuthor_Id(bookRequestDto.getTitle(), author.getId())) {
@@ -154,6 +146,7 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(key = "'search:' + #criteria.toString() + ':' + #pageable.toString()", unless = "#result.isEmpty()")
     public Page<BookResponseDto> searchBooks(BookSearchCriteriaDTO criteria, Pageable pageable) {
         log.info("Entering pageable searchBooks method with criteria: {} and pageable: {}", criteria, pageable);
         Specification<Book> spec = BookSpecification.withSearchCriteria(criteria);
@@ -161,8 +154,8 @@ public class BookService {
         return books.map(this::convertToResponseDto);
     }
 
-    @Transactional(readOnly = true)
-    @CacheEvict(key = "{'id:' + #id, 'all'}")
+    @Transactional
+    @CacheEvict(allEntries = true)
     public void deleteBook(Long id) {
         log.info("Deleting book with id: {}", id);
         if (!bookRepository.existsById(id)) {
@@ -174,7 +167,7 @@ public class BookService {
     }
 
     @Transactional
-    @CacheEvict(key = "{'id:' + #id, 'all'}")
+    @CacheEvict(allEntries = true)
     public BookResponseDto updateBook(Long id, BookRequestDto bookRequestDto) {
         log.info("Updating book with id: {}", id);
         
@@ -200,14 +193,20 @@ public class BookService {
             throw new BookStockException("Stock cannot be negative");
         }
 
-        Author author = authorRepository.findByNameAndSurname(bookRequestDto.getAuthorName(), bookRequestDto.getAuthorSurname())
-                .orElseGet(() -> {
-                    Author newAuthor = Author.builder()
-                            .name(bookRequestDto.getAuthorName())
-                            .surname(bookRequestDto.getAuthorSurname())
-                            .build();
-                    return authorRepository.save(newAuthor);
-                });
+        Author author;
+        if (!existingBook.getAuthor().getName().equals(bookRequestDto.getAuthorName()) || 
+            !existingBook.getAuthor().getSurname().equals(bookRequestDto.getAuthorSurname())) {
+            
+            author = authorRepository.findByNameAndSurname(bookRequestDto.getAuthorName(), bookRequestDto.getAuthorSurname())
+                    .orElseThrow(() -> {
+                        log.error("Author not found with name: {} and surname: {}", 
+                                bookRequestDto.getAuthorName(), bookRequestDto.getAuthorSurname());
+                        return new AuthorNotFoundException("Author not found with name: " + 
+                                bookRequestDto.getAuthorName() + " and surname: " + bookRequestDto.getAuthorSurname());
+                    });
+        } else {
+            author = existingBook.getAuthor();
+        }
 
         if (!existingBook.getTitle().equals(bookRequestDto.getTitle()) || 
             !existingBook.getAuthor().getId().equals(author.getId())) {
@@ -235,7 +234,7 @@ public class BookService {
     }
 
     @Transactional
-    @CacheEvict(key = "'id:' + #id")
+    @CacheEvict(allEntries = true)
     public void decreaseAvailableCount(Long id) {
         log.info("Decreasing available count for book: {}", id);
         Book book = bookRepository.findById(id)
@@ -254,7 +253,7 @@ public class BookService {
     }
 
     @Transactional
-    @CacheEvict(key = "'id:' + #id")
+    @CacheEvict(allEntries = true)
     public void increaseAvailableCount(Long id) {
         log.info("Increasing available count for book: {}", id);
         Book book = bookRepository.findById(id)

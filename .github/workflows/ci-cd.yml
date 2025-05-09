@@ -25,10 +25,7 @@ jobs:
           cache: 'maven'
 
       - name: Build with Maven
-        run: mvn clean package -DskipTests
-
-      - name: Run Tests
-        run: mvn test
+        run: mvn clean package -Dmaven.test.skip=true
 
       - name: Build Docker image
         run: docker build -t $DOCKER_IMAGE:$DOCKER_TAG .

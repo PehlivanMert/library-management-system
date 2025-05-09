@@ -16,6 +16,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/**"); // API endpoint'leri için rate limiting uyguluyoruz
+                .addPathPatterns("/api/**"); // API endpoint'leri için rate limiting uyguluyorum
     }
 } 

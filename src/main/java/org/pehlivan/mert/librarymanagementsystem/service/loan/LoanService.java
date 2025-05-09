@@ -44,7 +44,7 @@ import java.util.Map;
 @Service
 @Slf4j
 @Transactional
-@CacheConfig(cacheNames = "loans", cacheManager = "redisCacheManager")
+@CacheConfig(cacheNames = "loan", cacheManager = "redisCacheManager")
 public class LoanService {
    
     private final LoanRepository loanRepository;
@@ -58,13 +58,8 @@ public class LoanService {
 
     @PostConstruct
     public void init() {
-        loanCounter = Counter.builder("library.loans.total")
-                .description("Total number of book loans")
-                .register(meterRegistry);
-
-        overdueCounter = Counter.builder("library.loans.overdue")
-                .description("Total number of overdue loans")
-                .register(meterRegistry);
+        loanCounter    = meterRegistry.counter("library.loans.total");
+        overdueCounter = meterRegistry.counter("library.loans.overdue");
     }
 
     private static final int MAX_LOANS_PER_USER = 3;
@@ -116,7 +111,8 @@ public class LoanService {
         }
     }
 
-    @CacheEvict(key = "{'loan:user:' + #loanRequestDto.userId, 'loan:book:' + #loanRequestDto.bookId}")
+    @Transactional
+    @CacheEvict(allEntries = true)
     public LoanResponseDto borrowBook(LoanRequestDto loanRequestDto) {
         log.info("Borrowing book with request: {}", loanRequestDto);
         
@@ -163,7 +159,8 @@ public class LoanService {
         return convertToDto(savedLoan);
     }
 
-    @CacheEvict(key = "{'loan:user:' + #userId, 'loan:book:' + #userLoanRequestDto.bookId}")
+    @Transactional
+    @CacheEvict(allEntries = true)
     public LoanResponseDto borrowBookForUser(UserLoanRequestDto userLoanRequestDto, Long userId) {
         log.info("User {} borrowing book with request: {}", userId, userLoanRequestDto);
         
@@ -214,7 +211,8 @@ public class LoanService {
         return convertToDto(savedLoan);
     }
 
-    @CacheEvict(key = "{'loan:' + #loanId, 'loan:user:' + #result.userId, 'loan:book:' + #result.bookId}")
+    @Transactional
+    @CacheEvict(allEntries = true)
     public LoanResponseDto returnBook(Long loanId) {
         log.info("Returning book for loan: {}", loanId);
 
@@ -244,7 +242,8 @@ public class LoanService {
         return convertToDto(updatedLoan);
     }
 
-    @Cacheable(key = "'loan:' + #loanId", unless = "#result == null")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'id:' + #loanId", unless = "#result == null")
     public LoanResponseDto getLoanById(Long loanId) {
         log.info("Getting loan by id: {}", loanId);
         return loanRepository.findById(loanId)
@@ -252,7 +251,8 @@ public class LoanService {
                 .orElseThrow(() -> new LoanNotFoundException("Loan not found with id: " + loanId));
     }
 
-    @Cacheable(key = "'all-loans'", unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'all'", unless = "#result.isEmpty()")
     public List<LoanResponseDto> getAllLoanHistory() {
         log.info("Getting all loan history");
         List<Loan> loans = loanRepository.findAll();
@@ -264,7 +264,8 @@ public class LoanService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(key = "'loan:user:' + #userId", unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'user:' + #userId", unless = "#result.isEmpty()")
     public List<LoanResponseDto> getLoanHistoryByUser(Long userId) {
         log.info("Getting loan history for user: {}", userId);
         
@@ -284,7 +285,8 @@ public class LoanService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(key = "'late-loans'", unless = "#result.isEmpty()")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'late'", unless = "#result.isEmpty()")
     public List<LoanResponseDto> getLateLoans() {
         log.info("Getting all late loans");
         return loanRepository.findByStatus(LoanStatus.OVERDUE).stream()
@@ -292,11 +294,16 @@ public class LoanService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(key = "'loan-report'", unless = "#result == null")
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'report'", unless = "#result == null")
     public String generateLoanReport() {
         log.info("Generating loan report");
         
         List<Loan> allLoans = loanRepository.findAll();
+        if (allLoans.isEmpty()) {
+            throw new LoanNotFoundException("No loans found to generate report");
+        }
+        
         LocalDate today = LocalDate.now();
         
         // Kategorilere göre ayır
@@ -337,7 +344,28 @@ public class LoanService {
         report.append("Yaklaşan Son Tarihli Kitap Sayısı: ").append(upcomingDueLoans.size()).append("\n");
         report.append("İade Edilen Kitap Sayısı: ").append(returnedLoans.size()).append("\n\n");
         
-        report.append("GECİKEN KİTAPLAR\n");
+        report.append("AKTİF ÖDÜNÇ KİTAPLAR\n");
+        report.append("===================\n");
+        if (activeLoans.isEmpty()) {
+            report.append("Aktif ödünç kitap bulunmamaktadır.\n");
+        } else {
+            report.append(String.format("%-5s %-30s %-20s %-15s %-15s %-10s\n",
+                    "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih", "Kalan Gün"));
+            report.append("-".repeat(100)).append("\n");
+            
+            for (Loan loan : activeLoans) {
+                long daysRemaining = ChronoUnit.DAYS.between(today, loan.getDueDate());
+                report.append(String.format("%-5d %-30s %-20s %-15s %-15s %-10d\n",
+                        loan.getId(),
+                        loan.getBook().getTitle(),
+                        loan.getUser().getUsername(),
+                        loan.getBorrowedDate().format(formatter),
+                        loan.getDueDate().format(formatter),
+                        daysRemaining));
+            }
+        }
+        
+        report.append("\nGECİKEN KİTAPLAR\n");
         report.append("================\n");
         if (overdueLoans.isEmpty()) {
             report.append("Geciken kitap bulunmamaktadır.\n");
@@ -396,27 +424,6 @@ public class LoanService {
             }
         }
 
-        report.append("\nAKTİF ÖDÜNÇ KİTAPLAR\n");
-        report.append("===================\n");
-        if (activeLoans.isEmpty()) {
-            report.append("Aktif ödünç kitap bulunmamaktadır.\n");
-        } else {
-            report.append(String.format("%-5s %-30s %-20s %-15s %-15s %-10s\n",
-                    "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih", "Kalan Gün"));
-            report.append("-".repeat(100)).append("\n");
-            
-            for (Loan loan : activeLoans) {
-                long daysRemaining = ChronoUnit.DAYS.between(today, loan.getDueDate());
-                report.append(String.format("%-5d %-30s %-20s %-15s %-15s %-10d\n",
-                        loan.getId(),
-                        loan.getBook().getTitle(),
-                        loan.getUser().getUsername(),
-                        loan.getBorrowedDate().format(formatter),
-                        loan.getDueDate().format(formatter),
-                        daysRemaining));
-            }
-        }
-
         // Dosyaya kaydet
         String fileName = "loan_report_" + today.format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".txt";
         try (FileWriter writer = new FileWriter(fileName)) {
@@ -427,7 +434,7 @@ public class LoanService {
             throw new RuntimeException("Error saving loan report to file", e);
         }
 
-        return "Rapor başarıyla oluşturuldu: " + fileName;
+        return report.toString();
     }
 
     private void validateBorrowRequest(LoanRequestDto loanRequestDto) {
@@ -448,6 +455,7 @@ public class LoanService {
                 .dueDate(loan.getDueDate())
                 .returnDate(loan.getReturnDate())
                 .status(loan.getStatus())
+                .penaltyAmount(loan.getPenaltyAmount())
                 .build();
     }
 }

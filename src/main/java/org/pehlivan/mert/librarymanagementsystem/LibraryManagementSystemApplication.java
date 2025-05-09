@@ -37,7 +37,7 @@ public class LibraryManagementSystemApplication {
 	}
 
 
-	/*@Bean
+	 /* @Bean
 	public CommandLineRunner initData() {
 		return args -> {
 			// Create LIBRARIAN user
@@ -50,7 +50,7 @@ public class LibraryManagementSystemApplication {
 					.build();
 			userRepository.save(librarian);
 
-			//Create READER user
+			Create READER user
 			User reader = User.builder()
 					.username("reader")
 					.password(passwordEncoder.encode("reader123"))
@@ -129,6 +129,6 @@ public class LibraryManagementSystemApplication {
 					.author(author2)
 					.build();
 			bookRepository.save(book4);
-		};
-	}*/
+		}; 
+	} */
 }
