@@ -6,7 +6,7 @@ import io.github.bucket4j.ConsumptionProbe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException;
 import org.pehlivan.mert.librarymanagementsystem.service.author.AuthorService;
 import org.pehlivan.mert.librarymanagementsystem.config.RateLimitConfig;
@@ -61,7 +61,7 @@ class AuthorControllerTest {
     private Bucket bucket;
 
     private AuthorRequestDto authorRequestDto;
-    private AuthorDto authorDto;
+    private AuthorResponseDto authorDto;
     private ConsumptionProbe successProbe;
     private ConsumptionProbe failProbe;
 
@@ -75,7 +75,7 @@ class AuthorControllerTest {
         authorRequestDto.setName("John");
         authorRequestDto.setSurname("Doe");
 
-        authorDto = new AuthorDto();
+        authorDto = new AuthorResponseDto();
         authorDto.setId(1L);
         authorDto.setName("John");
         authorDto.setSurname("Doe");
@@ -112,7 +112,7 @@ class AuthorControllerTest {
     @WithMockUser(roles = {"LIBRARIAN", "READER"})
     void getAllAuthors_ShouldReturnAuthorList() throws Exception {
         when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(successProbe);
-        List<AuthorDto> authors = Arrays.asList(authorDto);
+        List<AuthorResponseDto> authors = Arrays.asList(authorDto);
         when(authorService.getAllAuthors()).thenReturn(authors);
 
         mockMvc.perform(get("/api/v1/authors"))
@@ -198,7 +198,7 @@ class AuthorControllerTest {
     @Test
     @WithMockUser(roles = "LIBRARIAN")
     void getAllAuthors_RateLimitExceeded_Throws() throws Exception {
-        List<AuthorDto> authors = Arrays.asList(authorDto);
+        List<AuthorResponseDto> authors = Arrays.asList(authorDto);
         when(authorService.getAllAuthors()).thenReturn(authors);
 
         // First 100 requests succeed
