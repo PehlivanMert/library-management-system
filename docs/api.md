@@ -80,7 +80,7 @@ Content-Type: application/json
 ### English
 #### 1. User Registration
 ```http
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -94,7 +94,7 @@ Content-Type: application/json
 
 #### 2. User Login
 ```http
-POST /api/auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -168,7 +168,7 @@ GET /api/v1/books/search?title=Spring&authorName=Craig&authorSurname=Walls&isbn=
 Authorization: Bearer {token}
 ```
 
-#### 7. Kitap Müsaitlik Takibi
+#### 7. Kitap Müsaitlik Takibi - Postman ile kullanın
 ```http
 GET /api/v1/books/availability
 Authorization: Bearer {token}
