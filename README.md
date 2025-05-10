@@ -235,13 +235,6 @@ java -jar target/library-management-system.jar --spring.profiles.active=dev
 
 ## 🐳 Docker Kullanımı / Docker Usage
 
-### Uygulamayı direkt docker hubtan indirin / Pull the application directly from Docker Hub
-```bash
-docker pull pehlivanmert/library-management-system:e0b605aba84b9662d12cd58087d5a1730410c9b7
-docker run -p 8080:8080 pehlivanmert/library-management-system:e0b605aba84b9662d12cd58087d5a1730410c9b7
-```
-
-
 ### Seçenek 1: Tüm Servisler (Uygulama Dahil) / Option 1: All Services (Including Application)
 
 Tüm servisleri (uygulama dahil) Docker ile başlatmak için:
@@ -310,6 +303,9 @@ docker-compose -f docker-compose.dev.yml down
 
 # Logları görüntüle / View logs
 docker-compose -f docker-compose.dev.yml logs -f
+
+# Veritabanı oluşturma / Create database
+docker compose -f docker-compose.dev.yml exec postgres psql -U postgres -c "CREATE DATABASE library;"
 ```
 
 #### Docker Compose Plugin / Docker Compose Plugin
@@ -334,6 +330,8 @@ docker compose -f docker-compose.dev.yml logs -f
 > - `--build` parametresi sadece ana `docker-compose.yml` dosyası için gereklidir çünkü uygulama servisini içerir
 > - `docker-compose.dev.yml` için `--build` gerekli değildir çünkü sadece hazır Docker image'larını kullanır
 > - Docker Compose Plugin (`docker compose`) ve Docker Compose CLI (`docker-compose`) komutları aynı işlevi görür, sadece yazım şekli farklıdır
+> - Eğer hata alırsanız `docker compose down -v` komutunu çalıştırarak tüm container'ları ve volume'leri kaldırabilirsiniz
+> - Mail servisini kullanmak için env dosyasına mail `EMAIL_USERNAME` ve `EMAIL_PASSWORD` olarak ekleyin.
 
 ### Servis Portları / Service Ports
 

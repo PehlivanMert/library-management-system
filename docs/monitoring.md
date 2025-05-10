@@ -208,6 +208,10 @@ scrape_configs:
     scheme: 'http'
     scrape_interval: 15s
     honor_labels: true
+
+#### 3. Grafana
+Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağlar. Grafana'da aşağıdaki dashboard'ları oluşturabilirsiniz:
+   - Bunun için (../grafana-library-monitoring-dashboard.json) dosyasını grafana dashboarda import edin.
 ```
 
 ## İzlenen Metrikler / Monitored Metrics
