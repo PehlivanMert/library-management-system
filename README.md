@@ -198,6 +198,8 @@ Detaylı dokümantasyon `docs` dizininde bulunmaktadır / Detailed documentation
 
 ### Testleri Çalıştırma / Running Tests
 ```bash
+# Testleri çalıştırmadan docker ile servisleri başlatın / Start services with docker before running tests
+docker-compose -f docker-compose.dev.yml up -d
 # Tüm testleri çalıştır / Run all tests
 mvn test
 
