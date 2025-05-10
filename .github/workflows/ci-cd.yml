@@ -67,6 +67,7 @@ jobs:
           KAFKA_ZOOKEEPER_CONNECT: localhost:2181
           KAFKA_ADVERTISED_LISTENERS: ${{ env.KAFKA_ADVERTISED_LISTENERS }}
           KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
         ports:
           - 9092:9092
         options: >-
@@ -74,7 +75,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-          --wait-for zookeeper:2181
 
       prometheus:
         image: prom/prometheus:v2.45.0
