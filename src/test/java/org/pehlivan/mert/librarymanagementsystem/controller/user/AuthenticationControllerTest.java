@@ -3,8 +3,8 @@ package org.pehlivan.mert.librarymanagementsystem.controller.user;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationRequestDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationResponseDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationRequestDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
@@ -73,7 +73,7 @@ class AuthenticationControllerTest {
     void register_ShouldReturnCreatedUser() throws Exception {
         when(authenticationService.register(any(UserRequestDto.class))).thenReturn(userResponseDto);
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userRequestDto)))
                 .andExpect(status().isCreated())
@@ -87,7 +87,7 @@ class AuthenticationControllerTest {
     void login_ShouldReturnAuthenticationResponse() throws Exception {
         when(authenticationService.login(any(AuthenticationRequestDto.class))).thenReturn(authenticationResponseDto);
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authenticationRequestDto)))
                 .andExpect(status().isOk())
@@ -98,7 +98,7 @@ class AuthenticationControllerTest {
     void register_WithLibrarianRole_ShouldReturnForbidden() throws Exception {
         userRequestDto.setRoles(Collections.singletonList(Role.LIBRARIAN));
 
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userRequestDto)))
                 .andExpect(status().isForbidden());
@@ -109,7 +109,7 @@ class AuthenticationControllerTest {
         when(authenticationService.login(any(AuthenticationRequestDto.class)))
                 .thenThrow(new UnauthorizedException("Invalid credentials"));
 
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authenticationRequestDto)))
                 .andExpect(status().isUnauthorized());

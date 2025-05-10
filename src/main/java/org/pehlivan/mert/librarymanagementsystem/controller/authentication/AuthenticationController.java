@@ -1,4 +1,4 @@
-package org.pehlivan.mert.librarymanagementsystem.controller.user;
+package org.pehlivan.mert.librarymanagementsystem.controller.authentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -7,8 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationRequestDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.AuthenticationResponseDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationRequestDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedRoleException;
@@ -24,7 +24,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Slf4j
 @RestController
-@RequestMapping("api/auth")
+@RequestMapping("api/v1/auth")
 @Tag(name = "Authentication", description = "Authentication management API")
 @SecurityRequirement(name = "bearerAuth")
 public class AuthenticationController {

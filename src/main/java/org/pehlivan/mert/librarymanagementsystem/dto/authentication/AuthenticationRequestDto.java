@@ -1,4 +1,4 @@
-package org.pehlivan.mert.librarymanagementsystem.dto.user;
+package org.pehlivan.mert.librarymanagementsystem.dto.authentication;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

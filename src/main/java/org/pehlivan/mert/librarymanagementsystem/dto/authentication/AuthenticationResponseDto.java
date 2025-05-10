@@ -1,4 +1,4 @@
-package org.pehlivan.mert.librarymanagementsystem.dto.user;
+package org.pehlivan.mert.librarymanagementsystem.dto.authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
