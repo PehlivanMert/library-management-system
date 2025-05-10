@@ -49,6 +49,16 @@ public class AuthorService {
         if (authorRequestDto.getSurname() == null || authorRequestDto.getSurname().trim().isEmpty()) {
             throw new IllegalArgumentException("Author surname cannot be null or empty");
         }
+        // Check if author already exists
+        Author existingAuthor = authorRepository.findByNameAndSurname(
+                authorRequestDto.getName(),
+                authorRequestDto.getSurname()
+        ).stream().findFirst().orElse(null);
+
+        if (existingAuthor != null) {
+            log.info("Author already exists, returning existing author: {}", existingAuthor);
+            return modelMapper.map(existingAuthor, AuthorResponseDto.class);
+        }
         
         Author author = Author.builder()
                 .name(authorRequestDto.getName())
