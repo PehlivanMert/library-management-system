@@ -54,7 +54,7 @@ DELETE /api/v1/resource/{id}     # Delete
 ### Türkçe
 #### 1. Kullanıcı Kaydı
 ```http
-POST /api/auth/register
+POST /api/v1/auth/register
 Content-Type: application/json
 
 {
@@ -68,7 +68,7 @@ Content-Type: application/json
 
 #### 2. Kullanıcı Girişi
 ```http
-POST /api/auth/login
+POST /api/auth/v1/login
 Content-Type: application/json
 
 {
