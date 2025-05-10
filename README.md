@@ -8,14 +8,14 @@
 - [Başlangıç / Getting Started](#başlangıç--getting-started)
 - [Dokümantasyon / Documentation](#dokümantasyon--documentation)
 - [Geliştirme / Development](#geliştirme--development)
-- [Katkıda Bulunma / Contributing](#katkıda-bulunma--contributing)
-- [Lisans / License](#lisans--license)
+- [Önemli Notlar / Important Notes](#önemli-notlar--important-notes)
 - [Docker Kullanımı / Docker Usage](#docker-kullanımı--docker-usage)
+- [Katkıda Bulunma / Contributing](#katkıda-bulunma--contributing)
 
 ## 🎯 Hakkında / About
 
 ### Türkçe
-Bu proje, Spring Boot 3.x ile geliştirilmiş modern ve güçlü bir Kütüphane Yönetim Sistemidir. Kitap yönetimi, kullanıcı yönetimi, ödünç alma işlemleri ve daha fazlasını içeren kapsamlı bir çözüm sunmaktadır.
+Bu proje, Spring Boot 3.x ile geliştirilmiş modern ve güçlü bir Kütüphane Yönetim Sistemidir. Kitap yönetimi, kullanıcı yönetimi, ödünç alma işlemleri ve daha fazlasını içeren kapsamlı bir ürün sunmaktadır.
 
 ### English
 This project is a modern, robust Library Management System built with Spring Boot 3.x. It provides a comprehensive solution for managing library operations including book management, user management, borrowing operations, and more.
@@ -219,19 +219,10 @@ mvn clean package
 java -jar target/library-management-system.jar --spring.profiles.active=dev
 ```
 
-## 🤝 Katkıda Bulunma / Contributing
-
-1. Projeyi fork'layın / Fork the repository
-2. Feature branch oluşturun / Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Değişikliklerinizi commit edin / Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Branch'inizi push edin / Push to the branch (`git push origin feature/AmazingFeature`)
-5. Pull Request açın / Open a Pull Request
-
-### Pull Request Süreci / Pull Request Process
-1. README.md'yi değişikliklerle güncelleyin / Update the README.md with details of changes
-2. `docs` dizinindeki dokümantasyonu güncelleyin / Update the documentation in the `docs` directory
-3. Tüm testlerin geçtiğinden emin olun / Ensure all tests pass
-4. Kod kapsamını %60'ın üzerinde tutun / Maintain code coverage above 60%
+## Önemli Notlar / Important Notes
+- Lütfen uygulamayı kendi environmentlarınız ile çalıştırmak isterseniz .env ekleyin ve gereklilikleri yapılandırın. Yoksa uygulama default environmentları kullanacaktır.
+- Uygulama başladığında eğer veritabanında Librarian yoksa data class'ı kullanarak Librarian ve Reader kullanıcıları otomatik olarak oluşturulacaktır.
+- Mail servisini kullanmak için env dosyasına mail `EMAIL_USERNAME` ve `EMAIL_PASSWORD` olarak ekleyin ve üyelik işlemini geçerli bir mail adresi ile yapın. Yeni kayıt, kitap ödünç alma ve iade işlemlerinde mail gönderilecektir.
 
 ## 🐳 Docker Kullanımı / Docker Usage
 
@@ -331,7 +322,7 @@ docker compose -f docker-compose.dev.yml logs -f
 > - `docker-compose.dev.yml` için `--build` gerekli değildir çünkü sadece hazır Docker image'larını kullanır
 > - Docker Compose Plugin (`docker compose`) ve Docker Compose CLI (`docker-compose`) komutları aynı işlevi görür, sadece yazım şekli farklıdır
 > - Eğer hata alırsanız `docker compose down -v` komutunu çalıştırarak tüm container'ları ve volume'leri kaldırabilirsiniz
-> - Mail servisini kullanmak için env dosyasına mail `EMAIL_USERNAME` ve `EMAIL_PASSWORD` olarak ekleyin.
+
 
 ### Servis Portları / Service Ports
 
@@ -352,10 +343,12 @@ IDE'den bağlanmak için:
 - Username: postgres
 - Password: postgres
 
-> **Not / Note**: Veritabanı otomatik olarak oluşturulur ve yapılandırılır. PostgreSQL container'ı başlatıldığında:
+> **Not / Note**: docker-compose.yml ile Veritabanı otomatik olarak oluşturulur ve yapılandırılır. PostgreSQL container'ı başlatıldığında:
 > - `library` veritabanı otomatik olarak oluşturulur
 > - `src/main/resources/db/migration` dizinindeki SQL dosyaları çalıştırılır
 > - Tablolar ve başlangıç verileri otomatik olarak oluşturulur
+> - `docker-compose.dev.yml` dosyasında `POSTGRES_DB` ve `POSTGRES_USER` değişkenleri ile yapılandırılabilir
+
 
 ### Grafana Erişimi / Grafana Access
 
@@ -367,6 +360,21 @@ IDE'den bağlanmak için:
 
 - URL: http://localhost:8090
 
+---
+
+## 🤝 Katkıda Bulunma / Contributing
+
+1. Projeyi fork'layın / Fork the repository
+2. Feature branch oluşturun / Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Değişikliklerinizi commit edin / Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Branch'inizi push edin / Push to the branch (`git push origin feature/AmazingFeature`)
+5. Pull Request açın / Open a Pull Request
+
+### Pull Request Süreci / Pull Request Process
+1. README.md'yi değişikliklerle güncelleyin / Update the README.md with details of changes
+2. `docs` dizinindeki dokümantasyonu güncelleyin / Update the documentation in the `docs` directory
+3. Tüm testlerin geçtiğinden emin olun / Ensure all tests pass
+4. Kod kapsamını %60'ın üzerinde tutun / Maintain code coverage above 60%
 ---
 
 <div align="center">

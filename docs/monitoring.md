@@ -20,6 +20,7 @@ Monitoring, sistemin performansını, sağlığını ve davranışını sürekli
 1. Sistem performansının gerçek zamanlı izlenmesini
 2. Hataların hızlıca tespit edilmesini
 3. Sistem kaynaklarının optimize edilmesini sağlar
+4. Bunlara ek olarak, loglarda log klasörü altında oluşturulmaktadır.
 
 #### Neden Bu Araçlar?
 1. **Spring Boot Actuator**: 
