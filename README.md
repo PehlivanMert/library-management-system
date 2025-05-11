@@ -187,6 +187,8 @@ veritabanına ekleyecektir. Lütfen Librarianı silmeyin. /
 When the application starts, it will create data using the Data class. 
 It will check for Librarian and if not found, it will add the data to the database. Please do not delete Librarian.
 ```
+7. Uygulamayı postmanden test etmek için [Library Management System API.postman_collection.json](Library%20Management%20System%20API.postman_collection.json) 
+dosyasını postman'e import edin, login endpointini kullanarak token alın ve Collection variables kısmına tokeni ekleyin. Sonrasında tüm endpointleri test edebilirsiniz.
 
 ### Varsayılan Kimlik Bilgileri / Default Credentials
 - Reader: librarian@library.com/librarian123
