@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: library-app
+    dockerComposeFilePath: docker-compose.dev.yml
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
