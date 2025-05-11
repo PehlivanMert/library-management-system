@@ -132,6 +132,12 @@ The system follows a clean, layered architecture pattern:
 - Prometheus
 - Grafana
 
+### E-posta / Email
+- JavaMailSender
+
+### Rate Limiting
+- Bucket4j
+
 ### Test / Testing
 - JUnit 5
 - Mockito
