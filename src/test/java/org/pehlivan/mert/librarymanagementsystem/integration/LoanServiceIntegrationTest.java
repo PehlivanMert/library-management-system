@@ -78,6 +78,9 @@ public class LoanServiceIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        // Reset mock
+        reset(emailService);
+
         // Clean up all related data
         loanRepository.deleteAll();
         userRepository.deleteAll();
@@ -255,7 +258,8 @@ public class LoanServiceIntegrationTest {
         assertNotNull(returnedLoan.getReturnDate());
         assertEquals(LoanStatus.RETURNED, returnedLoan.getStatus());
 
-        verify(emailService).sendLoanNotification(
+        // Verify email service was called exactly once during the entire test
+        verify(emailService, times(1)).sendLoanNotification(
             anyString(),
             anyString(),
             anyString(),

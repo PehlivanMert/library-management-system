@@ -9,20 +9,17 @@ import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.rate.RateLimitExceededException;
 import org.pehlivan.mert.librarymanagementsystem.service.author.AuthorService;
-import org.pehlivan.mert.librarymanagementsystem.config.RateLimitConfig;
-import org.pehlivan.mert.librarymanagementsystem.config.RateLimitInterceptor;
-import org.pehlivan.mert.librarymanagementsystem.repository.author.AuthorRepository;
-import org.pehlivan.mert.librarymanagementsystem.repository.book.BookRepository;
-import org.pehlivan.mert.librarymanagementsystem.repository.user.UserRepository;
+import org.pehlivan.mert.librarymanagementsystem.security.JwtHelper;
+import org.pehlivan.mert.librarymanagementsystem.config.TestSecurityConfig;
+import org.pehlivan.mert.librarymanagementsystem.service.user.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +31,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+/**
+ * AuthorController için test sınıfı.
+ * Bu sınıf, yazar işlemlerinin HTTP endpoint'lerini test eder.
+ * @WebMvcTest anotasyonu ile sadece web katmanı test edilir.
+ */
+@WebMvcTest(AuthorController.class)
+@ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 class AuthorControllerTest {
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
-
     private MockMvc mockMvc;
 
     @Autowired
@@ -49,16 +51,13 @@ class AuthorControllerTest {
     private AuthorService authorService;
 
     @MockBean
-    private AuthorRepository authorRepository;
-
-    @MockBean
-    private BookRepository bookRepository;
-
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
     private Bucket bucket;
+
+    @MockBean
+    private JwtHelper jwtHelper;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     private AuthorRequestDto authorRequestDto;
     private AuthorResponseDto authorDto;
@@ -67,30 +66,28 @@ class AuthorControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(webApplicationContext)
-                .build();
-
+        // Test yazarı oluştur
         authorRequestDto = new AuthorRequestDto();
         authorRequestDto.setName("John");
         authorRequestDto.setSurname("Doe");
 
+        // Test yanıt DTO'su oluştur
         authorDto = new AuthorResponseDto();
         authorDto.setId(1L);
         authorDto.setName("John");
         authorDto.setSurname("Doe");
 
-        // Mock successful probe
+        // Başarılı rate limiting durumu için probe ayarla
         successProbe = mock(ConsumptionProbe.class);
         when(successProbe.isConsumed()).thenReturn(true);
         when(successProbe.getRemainingTokens()).thenReturn(99L);
         when(successProbe.getNanosToWaitForReset()).thenReturn(0L);
 
-        // Mock failed probe
+        // Başarısız rate limiting durumu için probe ayarla
         failProbe = mock(ConsumptionProbe.class);
         when(failProbe.isConsumed()).thenReturn(false);
         when(failProbe.getRemainingTokens()).thenReturn(0L);
-        when(failProbe.getNanosToWaitForRefill()).thenReturn(300_000_000_000L); // 5 minutes
+        when(failProbe.getNanosToWaitForRefill()).thenReturn(300_000_000_000L); // 5 dakika
     }
 
     @Test
@@ -172,7 +169,7 @@ class AuthorControllerTest {
     void createAuthor_RateLimitExceeded_Throws() throws Exception {
         when(authorService.createAuthor(any(AuthorRequestDto.class))).thenReturn(authorDto);
 
-        // First 100 requests succeed
+        // İlk 100 istek başarılı
         for (int i = 0; i < 100; i++) {
             when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(successProbe);
             mockMvc.perform(post("/api/v1/authors")
@@ -181,7 +178,7 @@ class AuthorControllerTest {
                     .andExpect(status().isCreated());
         }
 
-        // 101st request fails
+        // 101. istek başarısız olmalı
         when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(failProbe);
         mockMvc.perform(post("/api/v1/authors")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -201,14 +198,14 @@ class AuthorControllerTest {
         List<AuthorResponseDto> authors = Arrays.asList(authorDto);
         when(authorService.getAllAuthors()).thenReturn(authors);
 
-        // First 100 requests succeed
+        // İlk 100 istek başarılı
         for (int i = 0; i < 100; i++) {
             when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(successProbe);
             mockMvc.perform(get("/api/v1/authors"))
                     .andExpect(status().isOk());
         }
 
-        // 101st request fails
+        // 101. istek başarısız olmalı
         when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(failProbe);
         mockMvc.perform(get("/api/v1/authors"))
                 .andExpect(status().isTooManyRequests())
@@ -225,14 +222,14 @@ class AuthorControllerTest {
     void getAuthorById_RateLimitExceeded_Throws() throws Exception {
         when(authorService.getAuthor(anyLong())).thenReturn(authorDto);
 
-        // First 100 requests succeed
+        // İlk 100 istek başarılı
         for (int i = 0; i < 100; i++) {
             when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(successProbe);
             mockMvc.perform(get("/api/v1/authors/1"))
                     .andExpect(status().isOk());
         }
 
-        // 101st request fails
+        // 101. istek başarısız olmalı
         when(bucket.tryConsumeAndReturnRemaining(1)).thenReturn(failProbe);
         mockMvc.perform(get("/api/v1/authors/1"))
                 .andExpect(status().isTooManyRequests())

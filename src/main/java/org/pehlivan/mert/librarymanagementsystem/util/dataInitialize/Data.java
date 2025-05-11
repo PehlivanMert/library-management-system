@@ -15,6 +15,7 @@ import org.pehlivan.mert.librarymanagementsystem.repository.loan.LoanRepository;
 import org.pehlivan.mert.librarymanagementsystem.repository.user.UserRepository;
 import org.pehlivan.mert.librarymanagementsystem.service.loan.LoanService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.List;
 
+@Profile("!test")
 @Component
 @RequiredArgsConstructor
 public class Data implements CommandLineRunner {
