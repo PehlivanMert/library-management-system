@@ -245,7 +245,8 @@ public class BookService {
         }
         
         book.setAvailableCount(book.getAvailableCount() - 1);
-        book.setStatus(book.getAvailableCount() == 0 ? BookStatus.UNAVAILABLE : BookStatus.AVAILABLE);
+        BookStatus newStatus = book.getAvailableCount() == 0 ? BookStatus.UNAVAILABLE : BookStatus.AVAILABLE;
+        book.setStatus(newStatus);
         Book updatedBook = bookRepository.save(book);
         bookAvailabilityService.notifyAvailabilityChange(updatedBook, "BORROWED");
         
