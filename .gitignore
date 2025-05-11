@@ -42,4 +42,7 @@ logs/
 
 ### ENVIRONMENT ###
 *.env
+.env
+.env.*
+!.env.example
 
