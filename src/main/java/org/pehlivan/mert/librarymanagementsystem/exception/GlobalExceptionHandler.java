@@ -1,6 +1,7 @@
 package org.pehlivan.mert.librarymanagementsystem.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorAlreadyExistException;
 import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookAlreadyExistsException;
 import org.pehlivan.mert.librarymanagementsystem.exception.book.BookNotAvailableException;
@@ -44,6 +45,17 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AuthorAlreadyExistException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorAlreadyExistsException(AuthorAlreadyExistException ex) {
+        log.error("Author already exists: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     // User Exceptions
@@ -250,8 +262,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(RateLimitExceededException.class)
-    public ResponseEntity<ErrorResponse> handleRateLimitExceededException(RateLimitExceededException ex) {
+    @ExceptionHandler(org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceededException(org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException ex) {
         log.error("Rate limit exceeded: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
             HttpStatus.TOO_MANY_REQUESTS.value(),

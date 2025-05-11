@@ -1,11 +1,11 @@
 {
 	"info": {
-		"_postman_id": "edda8cb7-485f-4848-861f-6e9fd003ec21",
+		"_postman_id": "70337279-6584-4548-8394-2dbc2ede1276",
 		"name": "Library Management System API",
 		"description": "Complete API collection for Library Management System",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "44019833",
-		"_collection_link": "https://mertpehlivan.postman.co/workspace/Mert-Pehlivan's-Workspace~bd1386bc-7dd7-427c-8f58-774ec79465ec/collection/44019833-edda8cb7-485f-4848-861f-6e9fd003ec21?action=share&source=collection_link&creator=44019833"
+		"_collection_link": "https://mertpehlivan.postman.co/workspace/Mert-Pehlivan's-Workspace~bd1386bc-7dd7-427c-8f58-774ec79465ec/collection/44019833-70337279-6584-4548-8394-2dbc2ede1276?action=share&source=collection_link&creator=44019833"
 	},
 	"item": [
 		{
@@ -115,7 +115,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"John\",\n    \"surname\": \"Doe\"}"
+							"raw": "{\n    \"name\": \"John\",\n    \"surname\": \"Doe\"\n    }"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/authors",
@@ -915,7 +915,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "eyJhbGciOiJIUzI1NiJ9.eyJhdXRob3JpdGllcyI6WyJST0xFX0xJQlJBUklBTiJdLCJzdWIiOiJsaWJyYXJpYW5AbGlicmFyeS5jb20iLCJpYXQiOjE3NDY4ODMwNzEsImV4cCI6MTc0Njg4NjY3MX0.9dtS3pG2DpOr6Fs4MIF5lSPAleGmyL9UjdgRgEHJrCI",
+				"value": "{{token}}",
 				"type": "string"
 			}
 		]

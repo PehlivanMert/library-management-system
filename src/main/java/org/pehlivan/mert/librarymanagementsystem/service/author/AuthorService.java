@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
+import org.pehlivan.mert.librarymanagementsystem.exception.ErrorResponse;
+import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorAlreadyExistException;
 import org.pehlivan.mert.librarymanagementsystem.exception.author.AuthorNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.model.book.Author;
 import org.pehlivan.mert.librarymanagementsystem.repository.author.AuthorRepository;
@@ -57,7 +59,7 @@ public class AuthorService {
 
         if (existingAuthor != null) {
             log.info("Author already exists, returning existing author: {}", existingAuthor);
-            return modelMapper.map(existingAuthor, AuthorResponseDto.class);
+            throw new AuthorAlreadyExistException("Author already exists with: " + authorRequestDto.getName() + " " + authorRequestDto.getSurname());
         }
         
         Author author = Author.builder()
