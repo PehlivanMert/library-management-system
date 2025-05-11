@@ -1,4 +1,4 @@
-package org.pehlivan.mert.librarymanagementsystem.exception;
+package org.pehlivan.mert.librarymanagementsystem.exception.rate;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

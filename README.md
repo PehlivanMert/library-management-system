@@ -167,7 +167,7 @@ cd library-management-system
 
 2. Gerekli servisleri başlatın / Start required services:
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
 3. Projeyi derleyin / Build the project:
@@ -178,6 +178,14 @@ mvn clean install
 4. Uygulamayı çalıştırın / Run the application:
 ```bash
 mvn spring-boot:run
+```
+5. Tarayıcıda uygulamayı açın / Open the application in your browser:
+`http://localhost:8080/swagger-ui/index.html`
+```
+6. Uygulama çalıştığında, Data sınıfı kullanılarak data oluşturulacaktır. Librarian kontrolü yapacak eğer yoksa verileri
+veritabanına ekleyecektir. Lütfen Librarianı silmeyin. /
+When the application starts, it will create data using the Data class. 
+It will check for Librarian and if not found, it will add the data to the database. Please do not delete Librarian.
 ```
 
 ### Varsayılan Kimlik Bilgileri / Default Credentials

@@ -11,6 +11,7 @@ import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanLimitExceede
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanNotFoundException;
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.LoanAlreadyReturnedException;
 import org.pehlivan.mert.librarymanagementsystem.exception.loan.UserLoanHistoryNotFoundException;
+import org.pehlivan.mert.librarymanagementsystem.exception.rate.RateLimitExceededException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedRoleException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UserAlreadyExistsException;
@@ -262,8 +263,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException.class)
-    public ResponseEntity<ErrorResponse> handleRateLimitExceededException(org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException ex) {
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceededException(RateLimitExceededException ex) {
         log.error("Rate limit exceeded: {}", ex.getMessage());
         ErrorResponse error = new ErrorResponse(
             HttpStatus.TOO_MANY_REQUESTS.value(),

@@ -46,7 +46,7 @@ import java.util.Map;
 @Transactional
 @CacheConfig(cacheNames = "loan", cacheManager = "redisCacheManager")
 public class LoanService {
-   
+
     private final LoanRepository loanRepository;
     private final BookService bookService;
     private final UserService userService;
@@ -67,29 +67,30 @@ public class LoanService {
     private static final double DAILY_PENALTY_AMOUNT = 5.0;
     private static final int MAX_EMAIL_DAYS = 30;
 
-    @Scheduled(cron = "0 0 9 * * MON") // Her Pazartesi saat 9'da
+    @Scheduled(cron = "0 0 8 * * *") // Her gün saat 8'da
+    //@Scheduled(fixedRate = 10000) // Her 10 saniyede bir
     @CacheEvict(allEntries = true)
     public void checkAndUpdateOverdueLoans() {
         log.info("Checking for overdue loans");
         LocalDate today = LocalDate.now();
-        
+
         List<Loan> overdueLoans = loanRepository.findByStatusAndDueDateBefore(LoanStatus.BORROWED, today);
-        
+
         if (!overdueLoans.isEmpty()) {
             log.info("Found {} overdue loans", overdueLoans.size());
-            
+
             for (Loan loan : overdueLoans) {
                 long daysOverdue = ChronoUnit.DAYS.between(loan.getDueDate(), today);
-                
+
                 // Her durumda ceza hesapla
                 double penaltyAmount = daysOverdue * DAILY_PENALTY_AMOUNT;
                 loan.setPenaltyAmount(penaltyAmount);
                 loan.setStatus(LoanStatus.OVERDUE);
                 loanRepository.save(loan);
                 log.info("Updated loan {} to OVERDUE status with penalty amount: {}", loan.getId(), penaltyAmount);
-                
+
                 overdueCounter.increment();
-                
+
                 // Sadece 30 güne kadar mail gönder
                 if (daysOverdue <= MAX_EMAIL_DAYS) {
                     Map<String, Object> bookInfo = new HashMap<>();
@@ -98,11 +99,11 @@ public class LoanService {
                     bookInfo.put("dueDate", loan.getDueDate());
                     bookInfo.put("overdueDays", daysOverdue);
                     bookInfo.put("penaltyAmount", penaltyAmount);
-                    
+
                     emailService.sendOverdueNotification(
-                        loan.getUser().getEmail(),
-                        loan.getUser().getUsername(),
-                        List.of(bookInfo)
+                            loan.getUser().getEmail(),
+                            loan.getUser().getUsername(),
+                            List.of(bookInfo)
                     );
                 }
             }
@@ -115,20 +116,20 @@ public class LoanService {
     @CacheEvict(allEntries = true)
     public LoanResponseDto borrowBook(LoanRequestDto loanRequestDto) {
         log.info("Borrowing book with request: {}", loanRequestDto);
-        
+
         User user = userService.getUserEntity(loanRequestDto.getUserId());
         Book book = bookService.getBookEntity(loanRequestDto.getBookId());
-        
+
         if (book.getAvailableCount() <= 0) {
             throw new BookNotAvailableException("Book is not available for loan");
         }
-        
+
         validateBorrowRequest(loanRequestDto);
-        
-        LocalDate borrowedDate = loanRequestDto.getBorrowedDate() != null ? 
-            loanRequestDto.getBorrowedDate() : LocalDate.now();
+
+        LocalDate borrowedDate = loanRequestDto.getBorrowedDate() != null ?
+                loanRequestDto.getBorrowedDate() : LocalDate.now();
         LocalDate dueDate = borrowedDate.plusDays(LOAN_PERIOD_DAYS);
-        
+
         Loan loan = Loan.builder()
                 .book(book)
                 .user(user)
@@ -138,24 +139,24 @@ public class LoanService {
                 .build();
 
         Loan savedLoan = loanRepository.save(loan);
-        
+
         loanCounter.increment();
-        
+
         try {
             bookService.decreaseAvailableCount(book.getId());
         } catch (BookNotAvailableException e) {
             loanRepository.delete(savedLoan);
             throw e;
         }
-        
+
         emailService.sendLoanNotification(
-            user.getEmail(),
-            user.getUsername(),
-            book.getTitle(),
-            borrowedDate,
-            dueDate
+                user.getEmail(),
+                user.getUsername(),
+                book.getTitle(),
+                borrowedDate,
+                dueDate
         );
-        
+
         return convertToDto(savedLoan);
     }
 
@@ -163,24 +164,24 @@ public class LoanService {
     @CacheEvict(allEntries = true)
     public LoanResponseDto borrowBookForUser(UserLoanRequestDto userLoanRequestDto, Long userId) {
         log.info("User {} borrowing book with request: {}", userId, userLoanRequestDto);
-        
+
         User user = userService.getUserEntity(userId);
         Book book = bookService.getBookEntity(userLoanRequestDto.getBookId());
-        
+
         if (book.getAvailableCount() <= 0) {
             throw new BookNotAvailableException("Book is not available for loan");
         }
-        
+
         validateBorrowRequest(LoanRequestDto.builder()
                 .userId(userId)
                 .bookId(userLoanRequestDto.getBookId())
                 .borrowedDate(userLoanRequestDto.getBorrowedDate())
                 .build());
-        
-        LocalDate borrowedDate = userLoanRequestDto.getBorrowedDate() != null ? 
-            userLoanRequestDto.getBorrowedDate() : LocalDate.now();
+
+        LocalDate borrowedDate = userLoanRequestDto.getBorrowedDate() != null ?
+                userLoanRequestDto.getBorrowedDate() : LocalDate.now();
         LocalDate dueDate = borrowedDate.plusDays(LOAN_PERIOD_DAYS);
-        
+
         Loan loan = Loan.builder()
                 .book(book)
                 .user(user)
@@ -190,24 +191,24 @@ public class LoanService {
                 .build();
 
         Loan savedLoan = loanRepository.save(loan);
-        
+
         loanCounter.increment();
-        
+
         try {
             bookService.decreaseAvailableCount(book.getId());
         } catch (BookNotAvailableException e) {
             loanRepository.delete(savedLoan);
             throw e;
         }
-        
+
         emailService.sendLoanNotification(
-            user.getEmail(),
-            user.getUsername(),
-            book.getTitle(),
-            borrowedDate,
-            dueDate
+                user.getEmail(),
+                user.getUsername(),
+                book.getTitle(),
+                borrowedDate,
+                dueDate
         );
-        
+
         return convertToDto(savedLoan);
     }
 
@@ -226,7 +227,7 @@ public class LoanService {
         LocalDate returnDate = LocalDate.now();
         loan.setReturnDate(returnDate);
         loan.setStatus(LoanStatus.RETURNED);
-        
+
         // Eğer kitap gecikmiş ise, iade tarihine kadar olan cezayı hesapla
         if (loan.getStatus() == LoanStatus.OVERDUE) {
             long daysOverdue = ChronoUnit.DAYS.between(loan.getDueDate(), returnDate);
@@ -236,9 +237,9 @@ public class LoanService {
         }
 
         Loan updatedLoan = loanRepository.save(loan);
-        
+
         bookService.increaseAvailableCount(loan.getBook().getId());
-        
+
         return convertToDto(updatedLoan);
     }
 
@@ -268,18 +269,18 @@ public class LoanService {
     @Cacheable(key = "'user:' + #userId", unless = "#result.isEmpty()")
     public List<LoanResponseDto> getLoanHistoryByUser(Long userId) {
         log.info("Getting loan history for user: {}", userId);
-        
+
         try {
             userService.getUser(userId);
         } catch (Exception e) {
             throw new UserNotFoundException("User not found with id: " + userId);
         }
-        
+
         List<Loan> loans = loanRepository.findByUser_Id(userId);
         if (loans.isEmpty()) {
             throw new UserLoanHistoryNotFoundException("No loan history found for user with id: " + userId);
         }
-        
+
         return loans.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -298,27 +299,27 @@ public class LoanService {
     @Cacheable(key = "'report'", unless = "#result == null")
     public String generateLoanReport() {
         log.info("Generating loan report");
-        
+
         List<Loan> allLoans = loanRepository.findAll();
         if (allLoans.isEmpty()) {
             throw new LoanNotFoundException("No loans found to generate report");
         }
-        
+
         LocalDate today = LocalDate.now();
-        
+
         // Kategorilere göre ayır
         List<Loan> overdueLoans = allLoans.stream()
                 .filter(loan -> loan.getStatus() == LoanStatus.OVERDUE)
                 .sorted(Comparator.comparing(Loan::getDueDate))
                 .collect(Collectors.toList());
-                
+
         List<Loan> upcomingDueLoans = allLoans.stream()
-                .filter(loan -> loan.getStatus() == LoanStatus.BORROWED && 
-                        loan.getDueDate().isAfter(today) && 
+                .filter(loan -> loan.getStatus() == LoanStatus.BORROWED &&
+                        loan.getDueDate().isAfter(today) &&
                         loan.getDueDate().isBefore(today.plusDays(7)))
                 .sorted(Comparator.comparing(Loan::getDueDate))
                 .collect(Collectors.toList());
-                
+
         List<Loan> returnedLoans = allLoans.stream()
                 .filter(loan -> loan.getStatus() == LoanStatus.RETURNED)
                 .sorted(Comparator.comparing(Loan::getReturnDate).reversed())
@@ -332,10 +333,10 @@ public class LoanService {
         // Rapor oluştur
         StringBuilder report = new StringBuilder();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        
+
         report.append("KÜTÜPHANE ÖDÜNÇ KİTAP RAPORU\n");
         report.append("Oluşturulma Tarihi: ").append(today.format(formatter)).append("\n\n");
-        
+
         report.append("GENEL İSTATİSTİKLER\n");
         report.append("===================\n");
         report.append("Toplam Ödünç Kitap Sayısı: ").append(allLoans.size()).append("\n");
@@ -343,7 +344,7 @@ public class LoanService {
         report.append("Geciken Kitap Sayısı: ").append(overdueLoans.size()).append("\n");
         report.append("Yaklaşan Son Tarihli Kitap Sayısı: ").append(upcomingDueLoans.size()).append("\n");
         report.append("İade Edilen Kitap Sayısı: ").append(returnedLoans.size()).append("\n\n");
-        
+
         report.append("AKTİF ÖDÜNÇ KİTAPLAR\n");
         report.append("===================\n");
         if (activeLoans.isEmpty()) {
@@ -352,7 +353,7 @@ public class LoanService {
             report.append(String.format("%-5s %-30s %-20s %-15s %-15s %-10s\n",
                     "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih", "Kalan Gün"));
             report.append("-".repeat(100)).append("\n");
-            
+
             for (Loan loan : activeLoans) {
                 long daysRemaining = ChronoUnit.DAYS.between(today, loan.getDueDate());
                 report.append(String.format("%-5d %-30s %-20s %-15s %-15s %-10d\n",
@@ -364,28 +365,29 @@ public class LoanService {
                         daysRemaining));
             }
         }
-        
+
         report.append("\nGECİKEN KİTAPLAR\n");
         report.append("================\n");
         if (overdueLoans.isEmpty()) {
             report.append("Geciken kitap bulunmamaktadır.\n");
         } else {
-            report.append(String.format("%-5s %-30s %-20s %-15s %-15s %-10s\n",
-                    "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih", "Gecikme (Gün)"));
-            report.append("-".repeat(100)).append("\n");
-            
+            report.append(String.format("%-5s %-30s %-20s %-15s %-15s %-10s %-10s\n",
+                    "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih", "Gecikme (Gün)", "Ceza (TL)"));
+            report.append("-".repeat(110)).append("\n");
+
             for (Loan loan : overdueLoans) {
                 long daysOverdue = ChronoUnit.DAYS.between(loan.getDueDate(), today);
-                report.append(String.format("%-5d %-30s %-20s %-15s %-15s %-10d\n",
+                report.append(String.format("%-5d %-30s %-20s %-15s %-15s %-10d %-10.2f\n",
                         loan.getId(),
                         loan.getBook().getTitle(),
                         loan.getUser().getUsername(),
                         loan.getBorrowedDate().format(formatter),
                         loan.getDueDate().format(formatter),
-                        daysOverdue));
+                        daysOverdue,
+                        loan.getPenaltyAmount()));
             }
         }
-        
+
         report.append("\nYAKLAŞAN SON TARİHLİ KİTAPLAR\n");
         report.append("===========================\n");
         if (upcomingDueLoans.isEmpty()) {
@@ -394,7 +396,7 @@ public class LoanService {
             report.append(String.format("%-5s %-30s %-20s %-15s %-15s\n",
                     "ID", "Kitap Adı", "Ödünç Alan", "Ödünç Tarihi", "Son Tarih"));
             report.append("-".repeat(90)).append("\n");
-            
+
             for (Loan loan : upcomingDueLoans) {
                 report.append(String.format("%-5d %-30s %-20s %-15s %-15s\n",
                         loan.getId(),
@@ -404,7 +406,7 @@ public class LoanService {
                         loan.getDueDate().format(formatter)));
             }
         }
-        
+
         report.append("\nSON İADE EDİLEN KİTAPLAR\n");
         report.append("=======================\n");
         if (returnedLoans.isEmpty()) {
@@ -413,7 +415,7 @@ public class LoanService {
             report.append(String.format("%-5s %-30s %-20s %-15s %-15s\n",
                     "ID", "Kitap Adı", "Ödünç Alan", "İade Tarihi", "Durum"));
             report.append("-".repeat(90)).append("\n");
-            
+
             for (Loan loan : returnedLoans) {
                 report.append(String.format("%-5d %-30s %-20s %-15s %-15s\n",
                         loan.getId(),
@@ -441,6 +443,12 @@ public class LoanService {
         long activeLoans = loanRepository.countByUser_IdAndStatus(loanRequestDto.getUserId(), LoanStatus.BORROWED);
         if (activeLoans >= MAX_LOANS_PER_USER) {
             throw new LoanLimitExceededException("User has reached maximum loan limit of " + MAX_LOANS_PER_USER);
+        }
+
+        // Geciken kitabı olan kullanıcıların yeni kitap almasını engelle
+        List<Loan> overdueLoans = loanRepository.findByUser_IdAndStatus(loanRequestDto.getUserId(), LoanStatus.OVERDUE);
+        if (!overdueLoans.isEmpty()) {
+            throw new LoanLimitExceededException("User has overdue books that need to be returned before borrowing new books");
         }
     }
 

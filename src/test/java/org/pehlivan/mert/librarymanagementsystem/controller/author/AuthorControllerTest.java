@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.author.AuthorResponseDto;
-import org.pehlivan.mert.librarymanagementsystem.exception.RateLimitExceededException;
+import org.pehlivan.mert.librarymanagementsystem.exception.rate.RateLimitExceededException;
 import org.pehlivan.mert.librarymanagementsystem.service.author.AuthorService;
 import org.pehlivan.mert.librarymanagementsystem.config.RateLimitConfig;
 import org.pehlivan.mert.librarymanagementsystem.config.RateLimitInterceptor;

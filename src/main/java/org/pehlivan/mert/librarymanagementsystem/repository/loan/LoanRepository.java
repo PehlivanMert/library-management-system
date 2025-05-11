@@ -8,10 +8,12 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<Loan> findByStatusAndDueDateBefore(LoanStatus status, LocalDate date);
     List<Loan> findByStatus(LoanStatus status);
     List<Loan> findByUser_Id(Long userId);
     long countByUser_IdAndStatus(Long userId, LoanStatus status);
+    List<Loan> findByUser_IdAndStatus(Long userId, LoanStatus status);
 }
