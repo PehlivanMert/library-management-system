@@ -13,7 +13,7 @@ import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedRoleException;
 import org.pehlivan.mert.librarymanagementsystem.model.user.Role;
-import org.pehlivan.mert.librarymanagementsystem.service.user.AuthenticationService;
+import org.pehlivan.mert.librarymanagementsystem.service.authentication.AuthenticationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

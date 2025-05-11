@@ -9,7 +9,7 @@ import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
 import org.pehlivan.mert.librarymanagementsystem.model.user.Role;
-import org.pehlivan.mert.librarymanagementsystem.service.user.AuthenticationService;
+import org.pehlivan.mert.librarymanagementsystem.service.authentication.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;

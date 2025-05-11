@@ -1,4 +1,4 @@
-package org.pehlivan.mert.librarymanagementsystem.service.user;
+package org.pehlivan.mert.librarymanagementsystem.service.authentication;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@CacheConfig(cacheNames = "users")
+@CacheConfig(cacheNames = "user", cacheManager = "redisCacheManager")
 public class AuthenticationService {
 
     private final UserRepository userRepository;

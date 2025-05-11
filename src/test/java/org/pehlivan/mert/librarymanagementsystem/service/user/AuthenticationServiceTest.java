@@ -18,6 +18,7 @@ import org.pehlivan.mert.librarymanagementsystem.model.user.Role;
 import org.pehlivan.mert.librarymanagementsystem.model.user.User;
 import org.pehlivan.mert.librarymanagementsystem.repository.user.UserRepository;
 import org.pehlivan.mert.librarymanagementsystem.security.JwtHelper;
+import org.pehlivan.mert.librarymanagementsystem.service.authentication.AuthenticationService;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.security.authentication.AuthenticationManager;

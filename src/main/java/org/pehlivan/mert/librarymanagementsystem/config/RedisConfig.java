@@ -69,25 +69,25 @@ public class RedisConfig {
         // Create cache configurations for different services
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
 
-        // Book service caches
-        cacheConfigurations.put("books", defaultConfig);
-        cacheConfigurations.put("book", defaultConfig);
-        cacheConfigurations.put("bookSearch", defaultConfig);
+        // Book service caches - different TTLs
+        cacheConfigurations.put("books", defaultConfig.entryTtl(Duration.ofHours(1))); // 1 saat
+        cacheConfigurations.put("book", defaultConfig.entryTtl(Duration.ofMinutes(30))); // 30 dakika
+        cacheConfigurations.put("bookSearch", defaultConfig.entryTtl(Duration.ofMinutes(10))); // 10 dakika
 
-        // User service caches
-        cacheConfigurations.put("users", defaultConfig);
-        cacheConfigurations.put("user", defaultConfig);
-        cacheConfigurations.put("userSearch", defaultConfig);
+        // User service caches - different TTLs
+        cacheConfigurations.put("users", defaultConfig.entryTtl(Duration.ofHours(2))); // 2 saat
+        cacheConfigurations.put("user", defaultConfig.entryTtl(Duration.ofHours(1))); // 1 saat
+        cacheConfigurations.put("userSearch", defaultConfig.entryTtl(Duration.ofMinutes(15))); // 15 dakika
 
-        // Author service caches
-        cacheConfigurations.put("authors", defaultConfig);
-        cacheConfigurations.put("author", defaultConfig);
-        cacheConfigurations.put("authorSearch", defaultConfig);
+        // Author service caches - different TTLs
+        cacheConfigurations.put("authors", defaultConfig.entryTtl(Duration.ofHours(4))); // 4 saat
+        cacheConfigurations.put("author", defaultConfig.entryTtl(Duration.ofHours(2))); // 2 saat
+        cacheConfigurations.put("authorSearch", defaultConfig.entryTtl(Duration.ofMinutes(20))); // 20 dakika
 
-        // Loan service caches
-        cacheConfigurations.put("loans", defaultConfig);
-        cacheConfigurations.put("loan", defaultConfig);
-        cacheConfigurations.put("overdueLoans", defaultConfig);
+        // Loan service caches - different TTLs
+        cacheConfigurations.put("loans", defaultConfig.entryTtl(Duration.ofMinutes(30))); // 30 dakika
+        cacheConfigurations.put("loan", defaultConfig.entryTtl(Duration.ofMinutes(15))); // 15 dakika
+        cacheConfigurations.put("overdueLoans", defaultConfig.entryTtl(Duration.ofMinutes(5))); // 5 dakika
 
         return RedisCacheManager.RedisCacheManagerBuilder
                 .fromConnectionFactory(redisConnectionFactory)
