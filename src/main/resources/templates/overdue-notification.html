@@ -5,23 +5,23 @@
     <title>Gecikmiş Kitap Bildirimi</title>
 </head>
 <body>
-    <h2>Sayın <span th:text="${userName}"></span>,</h2>
-    <p>Kütüphanemizden ödünç aldığınız aşağıdaki kitap(lar) için son teslim tarihi geçmiştir:</p>
-    
-    <h3>Gecikmiş Kitap(lar):</h3>
-    <ul th:each="book : ${books}">
-        <li>
-            <strong th:text="${book.title}"></strong><br>
-            Ödünç Alma Tarihi: <span th:text="${book.borrowedDate}"></span><br>
-            Son Teslim Tarihi: <span th:text="${book.dueDate}"></span><br>
-            Gecikme Süresi: <span th:text="${book.overdueDays}"></span> gün<br>
-            Gecikme Cezası: <span th:text="${book.penaltyAmount}"></span> TL
-        </li>
-    </ul>
-    
-    <p>Lütfen en kısa sürede kitapları iade ediniz.</p>
-    <p>Gecikme durumunda günlük 5 TL ceza uygulanmaktadır.</p>
-    
-    <p>Saygılarımızla,<br>Kütüphane Yönetimi</p>
+<h2>Sayın <span th:text="${username}"></span>,</h2>
+<p>Kütüphanemizden ödünç aldığınız aşağıdaki kitap(lar) için son teslim tarihi geçmiştir:</p>
+
+<h3>Gecikmiş Kitap(lar):</h3>
+<ul th:each="book : ${overdueBooks}">
+    <li>
+        <strong th:text="${book.title}"></strong><br>
+        Ödünç Alma Tarihi: <span th:text="${#temporals.format(book.borrowedDate, 'dd/MM/yyyy')}"></span><br>
+        Son Teslim Tarihi: <span th:text="${#temporals.format(book.dueDate, 'dd/MM/yyyy')}"></span><br>
+        Gecikme Süresi: <span th:text="${book.overdueDays}"></span> gün<br>
+        Gecikme Cezası: <span th:text="${book.penaltyAmount}"></span>
+    </li>
+</ul>
+
+<p>Lütfen en kısa sürede kitapları iade ediniz.</p>
+<p>Gecikme durumunda günlük 5 TL ceza uygulanmaktadır.</p>
+
+<p>Saygılarımızla,<br>Kütüphane Yönetimi</p>
 </body>
 </html> 

@@ -101,13 +101,15 @@ public class LoanService {
                     bookInfo.put("borrowedDate", loan.getBorrowedDate());
                     bookInfo.put("dueDate", loan.getDueDate());
                     bookInfo.put("overdueDays", daysOverdue);
-                    bookInfo.put("penaltyAmount", penaltyAmount);
+                    bookInfo.put("penaltyAmount", String.format("%.2f TL", penaltyAmount));
 
                     emailService.sendOverdueNotification(
                             loan.getUser().getEmail(),
                             loan.getUser().getUsername(),
                             List.of(bookInfo)
                     );
+                    log.info("Sent overdue notification for book: {} to user: {}",
+                            loan.getBook().getTitle(), loan.getUser().getEmail());
                 }
             }
         } else {

@@ -86,6 +86,9 @@ public class EmailServiceIntegrationTest {
         Map<String, Object> book = new HashMap<>();
         book.put("title", testBookTitle);
         book.put("dueDate", testDueDate);
+        book.put("borrowedDate", testBorrowedDate);
+        book.put("overdueDays", 5);
+        book.put("penaltyAmount", "50.00 TL");
         overdueBooks.add(book);
 
         // When & Then
