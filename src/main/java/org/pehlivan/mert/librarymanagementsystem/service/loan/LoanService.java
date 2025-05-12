@@ -39,6 +39,9 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RequiredArgsConstructor
 @Service
@@ -247,9 +250,22 @@ public class LoanService {
     @Cacheable(key = "'id:' + #loanId", unless = "#result == null")
     public LoanResponseDto getLoanById(Long loanId) {
         log.info("Getting loan by id: {}", loanId);
-        return loanRepository.findById(loanId)
-                .map(this::convertToDto)
+        Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new LoanNotFoundException("Loan not found with id: " + loanId));
+
+        // Check if current user is a reader and trying to access someone else's loan
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_READER"))) {
+            String currentEmail = authentication.getName();
+            if (!loan.getUser().getEmail().equals(currentEmail)) {
+                log.error("Access denied: Reader {} trying to access loan {} of another user",
+                        currentEmail, loanId);
+                throw new AccessDeniedException("Readers can only access their own loans");
+            }
+        }
+
+        return convertToDto(loan);
     }
 
     @Transactional(readOnly = true)
@@ -269,6 +285,19 @@ public class LoanService {
     @Cacheable(key = "'user:' + #userId", unless = "#result.isEmpty()")
     public List<LoanResponseDto> getLoanHistoryByUser(Long userId) {
         log.info("Getting loan history for user: {}", userId);
+
+        // Check if current user is a reader and trying to access someone else's history
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_READER"))) {
+            String currentEmail = authentication.getName();
+            User user = userService.getUserEntity(userId);
+            if (!user.getEmail().equals(currentEmail)) {
+                log.error("Access denied: Reader {} trying to access loan history of user {}",
+                        currentEmail, userId);
+                throw new AccessDeniedException("Readers can only access their own loan history");
+            }
+        }
 
         try {
             userService.getUser(userId);

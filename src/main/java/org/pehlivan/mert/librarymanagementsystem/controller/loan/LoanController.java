@@ -92,7 +92,7 @@ public class LoanController {
             @ApiResponse(responseCode = "409", description = "Book already returned")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('LIBRARIAN', 'READER')")
+    @PreAuthorize("hasAnyRole('LIBRARIAN')")
     public ResponseEntity<LoanResponseDto> returnBook(@PathVariable Long id) {
         log.info("Returning book for loan: {}", id);
         return ResponseEntity.ok(loanService.returnBook(id));

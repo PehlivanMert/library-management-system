@@ -66,10 +66,15 @@ public class AuthenticationService {
             log.error("User already exists: {}", userRequestDto.getEmail());
             throw new UserAlreadyExistsException("User already exists with email: " + userRequestDto.getEmail());
         }
-        
+
+        if (userRepository.findByUsername(userRequestDto.getUsername()).isPresent()) {
+            log.error("User already exists with username: {}", userRequestDto.getUsername());
+            throw new UserAlreadyExistsException("User already exists with username: " + userRequestDto.getUsername());
+        }
+
         User user = modelMapper.map(userRequestDto, User.class);
         user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
-        
+
         User createdUser = userRepository.save(user);
         log.info("User {} registered successfully", userRequestDto.getEmail());
 
@@ -77,22 +82,22 @@ public class AuthenticationService {
         try {
             log.info("=== Starting Kafka message sending process ===");
             log.info("Preparing Kafka message for user registration: {}", createdUser.getEmail());
-            
+
             UserRegistrationNotification notification = new UserRegistrationNotification(
-                createdUser.getEmail(),
-                createdUser.getUsername()
+                    createdUser.getEmail(),
+                    createdUser.getUsername()
             );
-            
+
             log.info("Kafka message content: {}", notification);
             log.info("Sending Kafka message to user-registration topic");
-            
+
             kafkaTemplate.send("user-registration", notification)
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
                             log.info("Kafka message sent successfully for user: {}", createdUser.getEmail());
-                            log.info("Message sent to partition: {}, offset: {}", 
-                                result.getRecordMetadata().partition(),
-                                result.getRecordMetadata().offset());
+                            log.info("Message sent to partition: {}, offset: {}",
+                                    result.getRecordMetadata().partition(),
+                                    result.getRecordMetadata().offset());
                         } else {
                             log.error("Failed to send Kafka message for user: {}", createdUser.getEmail(), ex);
                         }
