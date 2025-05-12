@@ -70,8 +70,8 @@ public class LoanService {
     private static final double DAILY_PENALTY_AMOUNT = 5.0;
     private static final int MAX_EMAIL_DAYS = 30;
 
-    @Scheduled(cron = "0 0 8 * * *") // Her gün saat 8'da
-    //@Scheduled(fixedRate = 10000) // Her 10 saniyede bir
+    //@Scheduled(cron = "0 0 8 * * *") // Her gün saat 8'da
+    @Scheduled(fixedRate = 30000) // Test Her 30 saniyede bir
     @CacheEvict(allEntries = true)
     public void checkAndUpdateOverdueLoans() {
         log.info("Checking for overdue loans");
