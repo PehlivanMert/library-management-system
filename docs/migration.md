@@ -14,7 +14,7 @@
 
 ### Türkçe
 Bu projede veritabanı şema değişikliklerini yönetmek için Flyway kullanılmaktadır. SQL tabanlı migration dosyaları ile veritabanı versiyonlaması yapılmaktadır.
-
+<img alt="database.svg" height="600" src="database.svg" width="600"/>
 #### Migration Nedir?
 Migration, veritabanı şemasında yapılan değişikliklerin versiyonlanması ve yönetilmesi sürecidir. Bu süreç:
 1. Şema değişikliklerinin takip edilmesini
