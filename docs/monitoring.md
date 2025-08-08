@@ -517,4 +517,110 @@ logging:
 1. **System Overview**: System health and general statistics
 2. **HTTP Metrics**: Request rates and response times
 3. **Business Metrics**: Book, user, and loan statistics
-4. **Performance Metrics**: System performance indicators 
+4. **Performance Metrics**: System performance indicators
+
+## Manuel Dashboard Yükleme / Manual Dashboard Import
+
+### Türkçe
+Grafana dashboard'unu manuel olarak yüklemek için aşağıdaki adımları takip edin:
+
+#### 1. Grafana'ya Erişim
+```bash
+# Grafana'nın çalıştığını kontrol edin
+docker ps | grep grafana
+
+# Grafana URL: http://localhost:3000
+# Kullanıcı adı: admin
+# Şifre: admin
+```
+
+#### 2. cURL ile Dashboard Yükleme
+```bash
+# Dashboard'u cURL ile yükleyin
+curl -X POST http://admin:admin@localhost:3000/api/dashboards/db \
+  -H "Content-Type: application/json" \
+  -d @grafana-library-monitoring-dashboard.json
+```
+
+#### 3. Başarılı Yükleme Yanıtı
+```json
+{
+  "folderUid": "",
+  "id": 4,
+  "slug": "ad2f435",
+  "status": "success",
+  "uid": "library-monitoring-dashboard",
+  "url": "/d/library-monitoring-dashboard/ad2f435",
+  "version": 1
+}
+```
+
+#### 4. Dashboard'a Erişim
+- **Ana URL:** http://localhost:3000
+- **Dashboard URL:** http://localhost:3000/d/library-monitoring-dashboard/ad2f435
+
+#### 5. Troubleshooting
+Eğer dashboard yükleme sırasında hata alırsanız:
+
+```bash
+# Grafana loglarını kontrol edin
+docker logs library-grafana --tail=20
+
+# Dashboard JSON dosyasının geçerliliğini kontrol edin
+cat grafana-library-monitoring-dashboard.json | jq .
+
+# Grafana'yı yeniden başlatın
+docker restart library-grafana
+```
+
+### English
+Follow the steps below to manually import the Grafana dashboard:
+
+#### 1. Access Grafana
+```bash
+# Check if Grafana is running
+docker ps | grep grafana
+
+# Grafana URL: http://localhost:3000
+# Username: admin
+# Password: admin
+```
+
+#### 2. Import Dashboard with cURL
+```bash
+# Import dashboard using cURL
+curl -X POST http://admin:admin@localhost:3000/api/dashboards/db \
+  -H "Content-Type: application/json" \
+  -d @grafana-library-monitoring-dashboard.json
+```
+
+#### 3. Successful Import Response
+```json
+{
+  "folderUid": "",
+  "id": 4,
+  "slug": "ad2f435",
+  "status": "success",
+  "uid": "library-monitoring-dashboard",
+  "url": "/d/library-monitoring-dashboard/ad2f435",
+  "version": 1
+}
+```
+
+#### 4. Access Dashboard
+- **Main URL:** http://localhost:3000
+- **Dashboard URL:** http://localhost:3000/d/library-monitoring-dashboard/ad2f435
+
+#### 5. Troubleshooting
+If you encounter errors during dashboard import:
+
+```bash
+# Check Grafana logs
+docker logs library-grafana --tail=20
+
+# Validate dashboard JSON file
+cat grafana-library-monitoring-dashboard.json | jq .
+
+# Restart Grafana
+docker restart library-grafana
+``` 
