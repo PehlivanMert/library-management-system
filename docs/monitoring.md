@@ -224,6 +224,39 @@ Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağ
 - HTTP performance metrics (request rate, response time percentiles)
 ```
 
+#### Grafana Dashboard Görselleri
+
+**Dashboard 1 - Ana Monitoring Paneli:**
+![Grafana Dashboard 1](img/Grafana_Dashboard1.png)
+
+Bu dashboard, sistemin genel durumunu gösterir:
+- HTTP Status Code Distribution
+- Request Method Distribution
+- Book Category Distribution
+- Loan Status Overview
+- User Role Distribution
+- System Performance Trends
+- Error Rate Monitoring
+
+**Dashboard 2 - Detaylı Metrikler:**
+![Grafana Dashboard 2](img/Grafana_Dashboard2.png)
+
+Bu dashboard, daha detaylı metrikleri içerir:
+- Author Performance Metrics
+- Loan Management Overview
+- Email Communication Metrics
+- Notification System Performance
+
+**Dashboard 3 - Sistem Genel Bakış:**
+![Grafana Dashboard 3](img/Grafana_Dashboard3.png)
+
+Bu dashboard, sistemin genel bakışını sağlar:
+- System Overview (System Health, Total Books, Total Users, Total Authors)
+- HTTP Request Rate (Last 5m)
+- HTTP Response Time Percentiles
+- Book Statistics Overview
+- User Activity Statistics
+
 ## İzlenen Metrikler / Monitored Metrics
 
 ### Türkçe
@@ -446,4 +479,42 @@ logging:
 3. **Log Improvements**:
    - Centralized log management
    - Log analysis
-   - Automated alerts 
+   - Automated alerts
+
+## Dashboard Kullanım Kılavuzu / Dashboard Usage Guide
+
+### Türkçe
+#### Dashboard Erişimi
+1. Grafana'ya giriş yapın: http://localhost:3000
+2. Sol menüden "Dashboards" seçin
+3. "Library Management System - Comprehensive Monitoring Dashboard"u açın
+
+#### Dashboard Özellikleri
+- **Real-time Updates**: 5 saniyede bir otomatik yenileme
+- **Time Range**: Son 15 dakika varsayılan, özelleştirilebilir
+- **Responsive Design**: Mobil ve masaüstü uyumlu
+- **Dark Theme**: Göz yorgunluğunu azaltan koyu tema
+
+#### Panel Açıklamaları
+1. **System Overview**: Sistem sağlığı ve genel istatistikler
+2. **HTTP Metrics**: İstek oranları ve yanıt süreleri
+3. **Business Metrics**: Kitap, kullanıcı ve ödünç alma istatistikleri
+4. **Performance Metrics**: Sistem performans göstergeleri
+
+### English
+#### Dashboard Access
+1. Login to Grafana: http://localhost:3000
+2. Select "Dashboards" from the left menu
+3. Open "Library Management System - Comprehensive Monitoring Dashboard"
+
+#### Dashboard Features
+- **Real-time Updates**: Auto-refresh every 5 seconds
+- **Time Range**: Default 15 minutes, customizable
+- **Responsive Design**: Mobile and desktop compatible
+- **Dark Theme**: Dark theme reducing eye strain
+
+#### Panel Descriptions
+1. **System Overview**: System health and general statistics
+2. **HTTP Metrics**: Request rates and response times
+3. **Business Metrics**: Book, user, and loan statistics
+4. **Performance Metrics**: System performance indicators 

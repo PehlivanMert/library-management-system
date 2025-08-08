@@ -61,7 +61,7 @@ The system follows a clean, layered architecture pattern:
    - Güvenlik yapılandırmaları / Security configurations
 
 <div align="center">
-  <img src="docs/class.svg" alt="Class Diagram" width="600"/>
+  <img src="docs/img/class.svg" alt="Class Diagram" width="600"/>
   <br/>
   <em>Sınıf Diyagramı / Class Diagram</em>
 </div>
@@ -75,7 +75,7 @@ The system follows a clean, layered architecture pattern:
 - Rate Limiting (istek sınırlama / request limiting)
 
 <div align="center">
-  <img src="docs/Infrastructure.svg" alt="Infrastructure Diagram" width="600"/>
+  <img src="docs/img/Infrastructure.svg" alt="Infrastructure Diagram" width="600"/>
   <br/>
   <em>Altyapı Diyagramı / Infrastructure Diagram</em>
 </div>
