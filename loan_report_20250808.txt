@@ -1,0 +1,34 @@
+KÜTÜPHANE ÖDÜNÇ KİTAP RAPORU
+Oluşturulma Tarihi: 08/08/2025
+
+GENEL İSTATİSTİKLER
+===================
+Toplam Ödünç Kitap Sayısı: 3
+Aktif Ödünç Kitap Sayısı: 1
+Geciken Kitap Sayısı: 1
+Yaklaşan Son Tarihli Kitap Sayısı: 1
+İade Edilen Kitap Sayısı: 1
+
+AKTİF ÖDÜNÇ KİTAPLAR
+===================
+ID    Kitap Adı                      Ödünç Alan           Ödünç Tarihi    Son Tarih       Kalan Gün 
+----------------------------------------------------------------------------------------------------
+2     Test Book                      testuser             08/08/2025      13/08/2025      5         
+
+GECİKEN KİTAPLAR
+================
+ID    Kitap Adı                      Ödünç Alan           Ödünç Tarihi    Son Tarih       Gecikme (Gün) Ceza (TL) 
+--------------------------------------------------------------------------------------------------------------
+1     Test Book                      testuser             19/07/2025      02/08/2025      6          30,00     
+
+YAKLAŞAN SON TARİHLİ KİTAPLAR
+===========================
+ID    Kitap Adı                      Ödünç Alan           Ödünç Tarihi    Son Tarih      
+------------------------------------------------------------------------------------------
+2     Test Book                      testuser             08/08/2025      13/08/2025     
+
+SON İADE EDİLEN KİTAPLAR
+=======================
+ID    Kitap Adı                      Ödünç Alan           İade Tarihi     Durum          
+------------------------------------------------------------------------------------------
+3     Test Book                      testuser             03/08/2025      RETURNED       

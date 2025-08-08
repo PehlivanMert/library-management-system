@@ -31,6 +31,9 @@ public class JwtHelper {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
+
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
@@ -56,20 +59,32 @@ public class JwtHelper {
         return expiration.before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateAccessToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("authorities", userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList()));
-        return createToken(claims, userDetails.getUsername());
+        claims.put("type", "ACCESS");
+        return createToken(claims, userDetails.getUsername(), jwtExpiration);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("type", "REFRESH");
+        return createToken(claims, userDetails.getUsername(), refreshExpiration);
+    }
+
+    // Backward compatibility
+    public String generateToken(UserDetails userDetails) {
+        return generateAccessToken(userDetails);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, long expiration) {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey())
                 .compact();
     }
@@ -79,10 +94,24 @@ public class JwtHelper {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public Boolean isRefreshToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims != null && "REFRESH".equals(claims.get("type"));
+    }
+
+    public Boolean isAccessToken(String token) {
+        Claims claims = getAllClaimsFromToken(token);
+        return claims != null && "ACCESS".equals(claims.get("type"));
+    }
+
     @SuppressWarnings("unchecked")
     public List<GrantedAuthority> getAuthoritiesFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
+        if (claims == null) return List.of();
+        
         List<String> authorities = (List<String>) claims.get("authorities");
+        if (authorities == null) return List.of();
+        
         return authorities.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

@@ -85,10 +85,11 @@ public class UserService {
                 log.info("=== Starting Kafka message sending process ===");
                 log.info("Preparing Kafka message for user registration: {}", createdUser.getEmail());
                 
-                UserRegistrationNotification notification = new UserRegistrationNotification(
-                    createdUser.getEmail(),
-                    createdUser.getUsername()
-                );
+                UserRegistrationNotification notification = UserRegistrationNotification.builder()
+                    .userId(createdUser.getId())
+                    .email(createdUser.getEmail())
+                    .username(createdUser.getUsername())
+                    .build();
                 
                 log.info("Kafka message content: {}", notification);
                 log.info("Sending Kafka message to user-registration topic");

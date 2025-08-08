@@ -1,5 +1,6 @@
 package org.pehlivan.mert.librarymanagementsystem.dto.authentication;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,12 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationResponseDto {
+public class RefreshTokenRequestDto {
 
-    private String accessToken;
+    @NotBlank(message = "Refresh token is required")
     private String refreshToken;
-    private String tokenType = "Bearer";
-    private Long expiresIn;
-    private String username;
-    private String email;
 }

@@ -126,6 +126,25 @@ public class BookService {
                 .collect(Collectors.toList());
     }
 
+    // Pagination destekli getAllBooks
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'all-paged:' + #pageable.toString()", unless = "#result.isEmpty()")
+    public Page<BookResponseDto> getAllBooksWithPagination(Pageable pageable) {
+        log.info("Fetching all books with pagination: {}", pageable);
+        // EntityGraph kullanarak LEFT JOIN FETCH benzeri optimizasyon
+        Page<Book> books = bookRepository.findAll(pageable);
+        return books.map(this::convertToResponseDto);
+    }
+
+    // LEFT JOIN FETCH ile pagination destekli getAllBooks
+    @Transactional(readOnly = true)
+    @Cacheable(key = "'all-fetch:' + #pageable.toString()", unless = "#result.isEmpty()")
+    public Page<BookResponseDto> getAllBooksWithAuthorFetch(Pageable pageable) {
+        log.info("Fetching all books with LEFT JOIN FETCH and pagination: {}", pageable);
+        Page<Book> books = bookRepository.findAllBooksWithAuthor(pageable);
+        return books.map(this::convertToResponseDto);
+    }
+
     @Transactional(readOnly = true)
     @Cacheable(key = "'id:' + #id", unless = "#result == null")
     public BookResponseDto getBookById(Long id) {
@@ -149,6 +168,7 @@ public class BookService {
     @Cacheable(key = "'search:' + #criteria.toString() + ':' + #pageable.toString()", unless = "#result.isEmpty()")
     public Page<BookResponseDto> searchBooks(BookSearchCriteriaDTO criteria, Pageable pageable) {
         log.info("Entering pageable searchBooks method with criteria: {} and pageable: {}", criteria, pageable);
+        // EntityGraph kullanarak LEFT JOIN FETCH benzeri optimizasyon
         Specification<Book> spec = BookSpecification.withSearchCriteria(criteria);
         Page<Book> books = bookRepository.findAll(spec, pageable);
         return books.map(this::convertToResponseDto);

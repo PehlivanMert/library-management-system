@@ -149,6 +149,36 @@ class BookControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"LIBRARIAN", "READER"})
+    void getAllBooksWithPagination_ShouldReturnPagedResults() throws Exception {
+        List<BookResponseDto> books = Arrays.asList(bookResponseDto);
+        Page<BookResponseDto> bookPage = new PageImpl<>(books);
+        when(bookService.getAllBooksWithPagination(any(Pageable.class))).thenReturn(bookPage);
+
+        mockMvc.perform(get("/api/v1/books/paged")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Test Book"));
+    }
+
+    @Test
+    @WithMockUser(roles = {"LIBRARIAN", "READER"})
+    void getAllBooksWithAuthorFetch_ShouldReturnPagedResults() throws Exception {
+        List<BookResponseDto> books = Arrays.asList(bookResponseDto);
+        Page<BookResponseDto> bookPage = new PageImpl<>(books);
+        when(bookService.getAllBooksWithAuthorFetch(any(Pageable.class))).thenReturn(bookPage);
+
+        mockMvc.perform(get("/api/v1/books/fetch")
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Test Book"));
+    }
+
+    @Test
     @WithMockUser(roles = "READER")
     void createBook_WithReaderRole_ShouldReturnForbidden() throws Exception {
         mockMvc.perform(post("/api/v1/books")

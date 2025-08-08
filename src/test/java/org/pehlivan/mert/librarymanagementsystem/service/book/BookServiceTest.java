@@ -247,6 +247,62 @@ class BookServiceTest {
     }
 
     // ----------------------------------------------------------------
+    // getAllBooksWithPagination tests
+    // ----------------------------------------------------------------
+
+    @Test
+    void getAllBooksWithPagination_ReturnsPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> page = new PageImpl<>(List.of(book), pageable, 1);
+        when(bookRepository.findAll(eq(pageable))).thenReturn(page);
+        
+        Page<BookResponseDto> result = bookService.getAllBooksWithPagination(pageable);
+        
+        assertEquals(1, result.getTotalElements());
+        verify(bookRepository).findAll(eq(pageable));
+    }
+
+    @Test
+    void getAllBooksWithPagination_WithEmptyResult_ReturnsEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+        when(bookRepository.findAll(eq(pageable))).thenReturn(emptyPage);
+        
+        Page<BookResponseDto> result = bookService.getAllBooksWithPagination(pageable);
+        
+        assertTrue(result.isEmpty());
+        verify(bookRepository).findAll(eq(pageable));
+    }
+
+    // ----------------------------------------------------------------
+    // getAllBooksWithAuthorFetch tests
+    // ----------------------------------------------------------------
+
+    @Test
+    void getAllBooksWithAuthorFetch_ReturnsPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> page = new PageImpl<>(List.of(book), pageable, 1);
+        when(bookRepository.findAllBooksWithAuthor(eq(pageable))).thenReturn(page);
+        
+        Page<BookResponseDto> result = bookService.getAllBooksWithAuthorFetch(pageable);
+        
+        assertEquals(1, result.getTotalElements());
+        verify(bookRepository).findAllBooksWithAuthor(eq(pageable));
+    }
+
+    @Test
+    void getAllBooksWithAuthorFetch_WithEmptyResult_ReturnsEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Book> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+        when(bookRepository.findAllBooksWithAuthor(eq(pageable))).thenReturn(emptyPage);
+        
+        Page<BookResponseDto> result = bookService.getAllBooksWithAuthorFetch(pageable);
+        
+        assertTrue(result.isEmpty());
+        verify(bookRepository).findAllBooksWithAuthor(eq(pageable));
+    }
+
+    // ----------------------------------------------------------------
     // deleteBook tests
     // ----------------------------------------------------------------
 

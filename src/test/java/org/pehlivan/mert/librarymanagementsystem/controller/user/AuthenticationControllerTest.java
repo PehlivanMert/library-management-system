@@ -5,10 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationResponseDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.UserRequestDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.UserResponseDto;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.RefreshTokenRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
-import org.pehlivan.mert.librarymanagementsystem.model.user.Role;
 import org.pehlivan.mert.librarymanagementsystem.service.authentication.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,8 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,50 +33,29 @@ class AuthenticationControllerTest {
     @MockBean
     private AuthenticationService authenticationService;
 
-    private UserRequestDto userRequestDto;
-    private UserResponseDto userResponseDto;
     private AuthenticationRequestDto authenticationRequestDto;
     private AuthenticationResponseDto authenticationResponseDto;
+    private RefreshTokenRequestDto refreshTokenRequestDto;
 
     @BeforeEach
     void setUp() {
-        userRequestDto = UserRequestDto.builder()
-                .name("Test User")
-                .username("testuser")
-                .email("test@example.com")
-                .password("password123")
-                .roles(Collections.singletonList(Role.READER))
-                .build();
-
-        userResponseDto = UserResponseDto.builder()
-                .id(1L)
-                .name("Test User")
-                .username("testuser")
-                .email("test@example.com")
-                .build();
-
         authenticationRequestDto = AuthenticationRequestDto.builder()
                 .email("test@example.com")
                 .password("password123")
                 .build();
 
         authenticationResponseDto = AuthenticationResponseDto.builder()
-                .token("test-token")
+                .accessToken("test-access-token")
+                .refreshToken("test-refresh-token")
+                .tokenType("Bearer")
+                .expiresIn(3600000L)
+                .username("testuser")
+                .email("test@example.com")
                 .build();
-    }
 
-    @Test
-    void register_ShouldReturnCreatedUser() throws Exception {
-        when(authenticationService.register(any(UserRequestDto.class))).thenReturn(userResponseDto);
-
-        mockMvc.perform(post("/api/v1/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userRequestDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Test User"))
-                .andExpect(jsonPath("$.username").value("testuser"))
-                .andExpect(jsonPath("$.email").value("test@example.com"));
+        refreshTokenRequestDto = RefreshTokenRequestDto.builder()
+                .refreshToken("test-refresh-token")
+                .build();
     }
 
     @Test
@@ -91,17 +66,28 @@ class AuthenticationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(authenticationRequestDto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("test-token"));
+                .andExpect(jsonPath("$.accessToken").value("test-access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("test-refresh-token"));
     }
 
     @Test
-    void register_WithLibrarianRole_ShouldReturnForbidden() throws Exception {
-        userRequestDto.setRoles(Collections.singletonList(Role.LIBRARIAN));
+    void refreshToken_ShouldReturnNewTokens() throws Exception {
+        when(authenticationService.refreshToken(any(RefreshTokenRequestDto.class))).thenReturn(authenticationResponseDto);
 
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post("/api/v1/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userRequestDto)))
-                .andExpect(status().isForbidden());
+                .content(objectMapper.writeValueAsString(refreshTokenRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("test-access-token"))
+                .andExpect(jsonPath("$.refreshToken").value("test-refresh-token"));
+    }
+
+    @Test
+    void logout_ShouldReturnOk() throws Exception {
+        mockMvc.perform(post("/api/v1/auth/logout")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(refreshTokenRequestDto)))
+                .andExpect(status().isOk());
     }
 
     @Test

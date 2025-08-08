@@ -11,16 +11,17 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationRequestDto;
 import org.pehlivan.mert.librarymanagementsystem.dto.authentication.AuthenticationResponseDto;
-import org.pehlivan.mert.librarymanagementsystem.dto.user.*;
+import org.pehlivan.mert.librarymanagementsystem.dto.authentication.RefreshTokenRequestDto;
+import org.pehlivan.mert.librarymanagementsystem.exception.authentication.RefreshTokenException;
 import org.pehlivan.mert.librarymanagementsystem.exception.user.UnauthorizedException;
-import org.pehlivan.mert.librarymanagementsystem.exception.user.UserAlreadyExistsException;
+import org.pehlivan.mert.librarymanagementsystem.model.authentication.RefreshToken;
 import org.pehlivan.mert.librarymanagementsystem.model.user.Role;
 import org.pehlivan.mert.librarymanagementsystem.model.user.User;
 import org.pehlivan.mert.librarymanagementsystem.repository.user.UserRepository;
 import org.pehlivan.mert.librarymanagementsystem.security.JwtHelper;
 import org.pehlivan.mert.librarymanagementsystem.service.authentication.AuthenticationService;
+import org.pehlivan.mert.librarymanagementsystem.service.authentication.RefreshTokenService;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -43,18 +43,18 @@ class AuthenticationServiceTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private JwtHelper jwtHelper;
     @Mock private AuthenticationManager authenticationManager;
-    @Mock private KafkaTemplate<String, UserRegistrationNotification> kafkaTemplate;
+    @Mock private KafkaTemplate<String, Object> kafkaTemplate;
     @Mock private Authentication authentication;
     @Mock private UserDetails userDetails;
-    @Mock private SendResult<String, UserRegistrationNotification> sendResult;
     @Mock private ModelMapper modelMapper;
+    @Mock private RefreshTokenService refreshTokenService;
 
     @InjectMocks private AuthenticationService authenticationService;
 
     private User testUser;
-    private UserRequestDto userRequestDto;
     private AuthenticationRequestDto authRequestDto;
-    private UserResponseDto userResponseDto;
+    private RefreshTokenRequestDto refreshTokenRequestDto;
+    private RefreshToken testRefreshToken;
 
     @BeforeEach
     void setUp() {
@@ -66,26 +66,21 @@ class AuthenticationServiceTest {
                 .roles(Collections.singletonList(Role.READER))
                 .build();
 
-        userRequestDto = UserRequestDto.builder()
-                .username("testuser")
-                .email("test@example.com")
-                .password("password123")
-                .roles(Collections.singletonList(Role.READER))
-                .build();
-
-        userResponseDto = UserResponseDto.builder()
-                .id(1L)
-                .username("testuser")
-                .email("test@example.com")
-                .build();
-
         authRequestDto = AuthenticationRequestDto.builder()
                 .email("test@example.com")
                 .password("password123")
                 .build();
 
-        when(modelMapper.map(any(UserRequestDto.class), eq(User.class))).thenReturn(testUser);
-        when(modelMapper.map(any(User.class), eq(UserResponseDto.class))).thenReturn(userResponseDto);
+        refreshTokenRequestDto = RefreshTokenRequestDto.builder()
+                .refreshToken("test-refresh-token")
+                .build();
+
+        testRefreshToken = RefreshToken.builder()
+                .id(1L)
+                .user(testUser)
+                .token("test-refresh-token")
+                .revoked(false)
+                .build();
     }
 
     @Test
@@ -94,14 +89,19 @@ class AuthenticationServiceTest {
                 .thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(true);
         when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(jwtHelper.generateToken(userDetails)).thenReturn("test.jwt.token");
+        when(userDetails.getUsername()).thenReturn("test@example.com");
+        when(jwtHelper.generateAccessToken(userDetails)).thenReturn("test.jwt.token");
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(testUser));
+        when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
 
         AuthenticationResponseDto response = authenticationService.login(authRequestDto);
 
         assertNotNull(response);
-        assertEquals("test.jwt.token", response.getToken());
+        assertEquals("test.jwt.token", response.getAccessToken());
+        assertEquals("test-refresh-token", response.getRefreshToken());
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtHelper).generateToken(userDetails);
+        verify(jwtHelper).generateAccessToken(userDetails);
+        verify(refreshTokenService).createRefreshToken(testUser);
     }
 
     @Test
@@ -112,49 +112,40 @@ class AuthenticationServiceTest {
 
         assertThrows(UnauthorizedException.class, () -> authenticationService.login(authRequestDto));
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
-        verify(jwtHelper, never()).generateToken(any(UserDetails.class));
+        verify(jwtHelper, never()).generateAccessToken(any(UserDetails.class));
     }
 
     @Test
-    void register_Success() {
-        when(userRepository.findByEmail(userRequestDto.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(userRequestDto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(kafkaTemplate.send(anyString(), any(UserRegistrationNotification.class)))
-                .thenReturn(CompletableFuture.completedFuture(sendResult));
+    void refreshToken_Success() {
+        when(refreshTokenService.findByToken("test-refresh-token")).thenReturn(Optional.of(testRefreshToken));
+        when(refreshTokenService.verifyExpiration(testRefreshToken)).thenReturn(testRefreshToken);
+        when(jwtHelper.isRefreshToken("test-refresh-token")).thenReturn(true);
+        when(jwtHelper.generateAccessToken(any(UserDetails.class))).thenReturn("new-access-token");
+        when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
 
-        UserResponseDto response = authenticationService.register(userRequestDto);
+        AuthenticationResponseDto response = authenticationService.refreshToken(refreshTokenRequestDto);
 
         assertNotNull(response);
-        assertEquals(testUser.getEmail(), response.getEmail());
-        assertEquals(testUser.getUsername(), response.getUsername());
-        verify(userRepository).save(any(User.class));
-        verify(kafkaTemplate).send(eq("user-registration"), any(UserRegistrationNotification.class));
+        assertEquals("new-access-token", response.getAccessToken());
+        verify(refreshTokenService).findByToken("test-refresh-token");
+        verify(refreshTokenService).verifyExpiration(testRefreshToken);
+        verify(jwtHelper).isRefreshToken("test-refresh-token");
     }
 
     @Test
-    void register_UserAlreadyExists() {
-        when(userRepository.findByEmail(userRequestDto.getEmail())).thenReturn(Optional.of(testUser));
+    void refreshToken_InvalidToken() {
+        when(refreshTokenService.findByToken("test-refresh-token")).thenReturn(Optional.empty());
 
-        assertThrows(UserAlreadyExistsException.class, () -> authenticationService.register(userRequestDto));
-        verify(userRepository, never()).save(any(User.class));
-        verify(kafkaTemplate, never()).send(anyString(), any(UserRegistrationNotification.class));
+        assertThrows(RefreshTokenException.class, () -> authenticationService.refreshToken(refreshTokenRequestDto));
+        verify(refreshTokenService).findByToken("test-refresh-token");
     }
 
     @Test
-    void register_KafkaFailure() {
-        when(userRepository.findByEmail(userRequestDto.getEmail())).thenReturn(Optional.empty());
-        when(passwordEncoder.encode(userRequestDto.getPassword())).thenReturn("encodedPassword");
-        when(userRepository.save(any(User.class))).thenReturn(testUser);
-        when(kafkaTemplate.send(anyString(), any(UserRegistrationNotification.class)))
-                .thenReturn(CompletableFuture.failedFuture(new RuntimeException("Kafka error")));
+    void logout_Success() {
+        when(refreshTokenService.findByToken("test-refresh-token")).thenReturn(Optional.of(testRefreshToken));
 
-        UserResponseDto response = authenticationService.register(userRequestDto);
-
-        assertNotNull(response);
-        assertEquals(testUser.getEmail(), response.getEmail());
-        assertEquals(testUser.getUsername(), response.getUsername());
-        verify(userRepository).save(any(User.class));
-        verify(kafkaTemplate).send(eq("user-registration"), any(UserRegistrationNotification.class));
+        assertDoesNotThrow(() -> authenticationService.logout(refreshTokenRequestDto));
+        verify(refreshTokenService).findByToken("test-refresh-token");
+        verify(refreshTokenService).deleteByUserId(testUser.getId());
     }
 } 

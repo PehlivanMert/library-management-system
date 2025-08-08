@@ -61,6 +61,44 @@ public class BookController {
         return ResponseEntity.ok(bookService.getAllBooks());
     }
 
+    @Operation(summary = "Get all books with pagination", description = "Retrieves all books in the library with pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = BookResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "No books found")
+    })
+    @GetMapping("/paged")
+    public ResponseEntity<Page<BookResponseDto>> getAllBooksWithPagination(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort) {
+        log.info("Getting all books with pagination: page={}, size={}, sort={}", page, size, sort);
+        Pageable pageable = PageRequest.of(page, size);
+        if (sort != null) {
+            pageable = PageRequest.of(page, size, Sort.by(sort));
+        }
+        return ResponseEntity.ok(bookService.getAllBooksWithPagination(pageable));
+    }
+
+    @Operation(summary = "Get all books with LEFT JOIN FETCH and pagination", description = "Retrieves all books with author information using LEFT JOIN FETCH and pagination")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Books retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = BookResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "No books found")
+    })
+    @GetMapping("/fetch")
+    public ResponseEntity<Page<BookResponseDto>> getAllBooksWithAuthorFetch(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort) {
+        log.info("Getting all books with LEFT JOIN FETCH and pagination: page={}, size={}, sort={}", page, size, sort);
+        Pageable pageable = PageRequest.of(page, size);
+        if (sort != null) {
+            pageable = PageRequest.of(page, size, Sort.by(sort));
+        }
+        return ResponseEntity.ok(bookService.getAllBooksWithAuthorFetch(pageable));
+    }
+
     @Operation(summary = "Get book by ID", description = "Retrieves a specific book by its ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book retrieved successfully",
