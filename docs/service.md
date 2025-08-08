@@ -63,6 +63,7 @@ In this project, the service layer is the main layer where business logic is imp
 - **EmailService**: E-posta gönderimi
 - **NotificationService**: Bildirim yönetimi
 - **AuthenticationService**: Kimlik doğrulama
+- **RefreshTokenService**: Refresh token yönetimi (Yeni)
 
 #### 3. Servis İlişkileri
 ```mermaid
@@ -393,6 +394,88 @@ public class LoanService {
         
         return modelMapper.map(savedLoan, LoanResponseDto.class);
     }
+}
+```
+
+## Yeni Servis Özellikleri (v2.0) / New Service Features (v2.0)
+
+### Türkçe
+#### 1. RefreshTokenService
+```java
+@Service
+@RequiredArgsConstructor
+public class RefreshTokenService {
+    private final RefreshTokenRepository refreshTokenRepository;
+    
+    public RefreshToken createRefreshToken(User user) {
+        RefreshToken refreshToken = RefreshToken.builder()
+            .user(user)
+            .token(UUID.randomUUID().toString())
+            .expiryDate(LocalDateTime.now().plusDays(7))
+            .build();
+        return refreshTokenRepository.save(refreshToken);
+    }
+    
+    public void revokeRefreshToken(String token) {
+        refreshTokenRepository.findByToken(token)
+            .ifPresent(refreshToken -> {
+                refreshToken.setRevoked(true);
+                refreshTokenRepository.save(refreshToken);
+            });
+    }
+}
+```
+
+#### 2. BookService Pagination
+```java
+public Page<BookResponseDto> getAllBooksWithPagination(Pageable pageable) {
+    Page<Book> books = bookRepository.findAll(pageable);
+    return books.map(book -> modelMapper.map(book, BookResponseDto.class));
+}
+
+public Page<BookResponseDto> getAllBooksWithAuthorFetch(Pageable pageable) {
+    Page<Book> books = bookRepository.findAllBooksWithAuthor(pageable);
+    return books.map(book -> modelMapper.map(book, BookResponseDto.class));
+}
+```
+
+### English
+#### 1. RefreshTokenService
+```java
+@Service
+@RequiredArgsConstructor
+public class RefreshTokenService {
+    private final RefreshTokenRepository refreshTokenRepository;
+    
+    public RefreshToken createRefreshToken(User user) {
+        RefreshToken refreshToken = RefreshToken.builder()
+            .user(user)
+            .token(UUID.randomUUID().toString())
+            .expiryDate(LocalDateTime.now().plusDays(7))
+            .build();
+        return refreshTokenRepository.save(refreshToken);
+    }
+    
+    public void revokeRefreshToken(String token) {
+        refreshTokenRepository.findByToken(token)
+            .ifPresent(refreshToken -> {
+                refreshToken.setRevoked(true);
+                refreshTokenRepository.save(refreshToken);
+            });
+    }
+}
+```
+
+#### 2. BookService Pagination
+```java
+public Page<BookResponseDto> getAllBooksWithPagination(Pageable pageable) {
+    Page<Book> books = bookRepository.findAll(pageable);
+    return books.map(book -> modelMapper.map(book, BookResponseDto.class));
+}
+
+public Page<BookResponseDto> getAllBooksWithAuthorFetch(Pageable pageable) {
+    Page<Book> books = bookRepository.findAllBooksWithAuthor(pageable);
+    return books.map(book -> modelMapper.map(book, BookResponseDto.class));
 }
 ```
 

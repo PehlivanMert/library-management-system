@@ -24,9 +24,11 @@ This project is a modern, robust Library Management System built with Spring Boo
 - 📚 Tam kitap yönetim sistemi / Complete book management system
 - 👥 Rol tabanlı erişim kontrolü ile kullanıcı yönetimi / User management with role-based access control
 - 🔒 Güvenli kimlik doğrulama ve yetkilendirme / Secure authentication and authorization
+- 🔄 Refresh token sistemi / Refresh token system
 - 📧 E-posta bildirimleri / Email notifications
 - 📊 Gerçek zamanlı izleme ve metrikler / Real-time monitoring and metrics
 - 🔄 Asenkron olay işleme / Asynchronous event processing
+- 📄 Sayfalama ve performans optimizasyonu / Pagination and performance optimization
 - 🎯 Yüksek test kapsamı / High test coverage
 
 ## 🏗 Mimari / Architecture
@@ -156,6 +158,8 @@ The system follows a clean, layered architecture pattern:
 - PostgreSQL
 - Redis
 - Kafka
+- Prometheus (opsiyonel / optional)
+- Grafana (opsiyonel / optional)
 
 ### Kurulum / Installation
 
@@ -181,18 +185,32 @@ mvn spring-boot:run
 ```
 5. Tarayıcıda uygulamayı açın / Open the application in your browser:
 `http://localhost:8080/swagger-ui/index.html`
-```
+
 6. Uygulama çalıştığında, Data sınıfı kullanılarak data oluşturulacaktır. Librarian kontrolü yapacak eğer yoksa verileri
 veritabanına ekleyecektir. Lütfen Librarianı silmeyin. /
 When the application starts, it will create data using the Data class. 
 It will check for Librarian and if not found, it will add the data to the database. Please do not delete Librarian.
-```
+
 7. Uygulamayı postmanden test etmek için [Library Management System API.postman_collection.json](Library%20Management%20System%20API.postman_collection.json) 
 dosyasını postman'e import edin, login endpointini kullanarak token alın ve Collection variables kısmına tokeni ekleyin. Sonrasında tüm endpointleri test edebilirsiniz.
 
+8. **Yeni Özellikler (v2.0)**:
+   - **Refresh Token**: Login sonrası hem access token hem refresh token alırsınız
+   - **Token Yenileme**: `POST /api/v1/auth/refresh` ile token yenileyebilirsiniz
+   - **Logout**: `POST /api/v1/auth/logout` ile güvenli çıkış yapabilirsiniz
+   - **Public Registration**: `POST /api/v1/auth/register` ile READER rolünde kayıt olabilirsiniz
+   - **Pagination**: `GET /api/v1/books/paged` ve `GET /api/v1/books/fetch` ile sayfalama
+
 ### Varsayılan Kimlik Bilgileri / Default Credentials
-- Reader: librarian@library.com/librarian123
-- Okuyucu / Reader: reader@reader.com/reader123
+- **Librarian**: librarian@library.com/librarian123
+- **Reader**: reader@reader.com/reader123
+
+### Yeni Endpoint'ler (v2.0) / New Endpoints (v2.0)
+- `POST /api/v1/auth/refresh` - Token yenileme / Token refresh
+- `POST /api/v1/auth/logout` - Güvenli çıkış / Secure logout
+- `POST /api/v1/auth/register` - Public kayıt (READER only) / Public registration
+- `GET /api/v1/books/paged` - Sayfalama ile kitap listesi / Paginated book list
+- `GET /api/v1/books/fetch` - EntityGraph ile kitap listesi / EntityGraph book list
 
 ## 📚 Dokümantasyon / Documentation
 
@@ -209,6 +227,7 @@ Detaylı dokümantasyon `docs` dizininde bulunmaktadır / Detailed documentation
 - [Proje Yapısı / Project Structure](docs/structure.md)
 - [Reaktif Programlama / Reactive Programming](docs/reactive.md)
 - [Rate Limiting / İstek Sınırlama](docs/rate-limit.md)
+- [Changelog / Değişiklik Günlüğü](docs/changelog.md)
 
 ## 💻 Geliştirme / Development
 
@@ -241,6 +260,32 @@ java -jar target/library-management-system.jar --spring.profiles.active=dev
 - Lütfen uygulamayı kendi environmentlarınız ile çalıştırmak isterseniz .env ekleyin ve gereklilikleri yapılandırın. Yoksa uygulama default environmentları kullanacaktır.
 - Uygulama başladığında eğer veritabanında Librarian yoksa data class'ı kullanarak Librarian ve Reader kullanıcıları otomatik olarak oluşturulacaktır.
 - Mail servisini kullanmak için env dosyasına mail `EMAIL_USERNAME` ve `EMAIL_PASSWORD` olarak ekleyin ve üyelik işlemini geçerli bir mail adresi ile yapın. Yeni kayıt, kitap ödünç alma ve iade işlemlerinde mail gönderilecektir.
+
+## 🆕 Yeni Özellikler (v2.0) / New Features (v2.0)
+
+### 🔄 Refresh Token Sistemi
+- **Token Rotation**: Her refresh işleminde yeni access ve refresh token
+- **Token Blacklisting**: Logout sonrası token'lar geçersiz kılınır
+- **Scheduled Cleanup**: Expired token'lar otomatik temizlenir
+- **UUID Tabanlı**: Refresh token'lar UUID formatında
+
+### 📄 Performans Optimizasyonları
+- **EntityGraph**: N+1 problem çözümü
+- **LEFT JOIN FETCH**: Optimized queries
+- **Pagination**: Büyük veri setleri için sayfalama
+- **Custom Queries**: Performans odaklı özel sorgular
+
+### 🔐 Güvenlik İyileştirmeleri
+- **Public Registration**: READER rolü ile public kayıt
+- **Role-based Access**: LIBRARIAN/READER ayrımı
+- **Custom Exceptions**: Anlamlı hata mesajları
+- **Token Validation**: Gelişmiş token doğrulama
+
+### 📊 Monitoring Geliştirmeleri
+- **8 Panel Dashboard**: Kapsamlı görselleştirme
+- **Real-time Updates**: 10 saniye refresh rate
+- **HTTP Metrics**: Request rate ve response time
+- **Business Metrics**: İş odaklı metrikler
 
 ## 🐳 Docker Kullanımı / Docker Usage
 

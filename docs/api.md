@@ -68,12 +68,45 @@ Content-Type: application/json
 
 #### 2. Kullanıcı Girişi
 ```http
-POST /api/auth/v1/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
     "email": "john.doe@example.com",
     "password": "password123"
+}
+```
+
+**Yanıt / Response:**
+```json
+{
+    "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+    "refreshToken": "10b7eca5-2957-45c6-aee5-ef9b09805cc7",
+    "tokenType": "Bearer",
+    "expiresIn": 3600000,
+    "username": "john.doe",
+    "email": "john.doe@example.com"
+}
+```
+
+#### 3. Token Yenileme (Yeni)
+```http
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+    "refreshToken": "10b7eca5-2957-45c6-aee5-ef9b09805cc7"
+}
+```
+
+#### 4. Logout (Yeni)
+```http
+POST /api/v1/auth/logout
+Authorization: Bearer {accessToken}
+Content-Type: application/json
+
+{
+    "refreshToken": "10b7eca5-2957-45c6-aee5-ef9b09805cc7"
 }
 ```
 
@@ -177,6 +210,18 @@ Content-Type: text/event-stream
 GET /api/v1/books/availability/{bookId}
 Authorization: Bearer {token}
 Content-Type: text/event-stream
+```
+
+#### 8. Sayfalama ile Kitap Listesi (Yeni)
+```http
+GET /api/v1/books/paged?page=0&size=10&sort=title,asc
+Authorization: Bearer {token}
+```
+
+#### 9. EntityGraph ile Kitap Listesi (Yeni)
+```http
+GET /api/v1/books/fetch?page=0&size=10&sort=title,asc
+Authorization: Bearer {token}
 ```
 
 ### English

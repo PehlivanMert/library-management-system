@@ -39,15 +39,15 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -71,7 +71,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -84,8 +85,8 @@
       "id": 1,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -94,7 +95,7 @@
           "sort": "none"
         }
       },
-      "title": "Book Statistics",
+      "title": "📚 Book Statistics",
       "type": "timeseries",
       "targets": [
         {
@@ -143,15 +144,15 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -175,7 +176,8 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
@@ -188,8 +190,8 @@
       "id": 2,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -198,7 +200,322 @@
           "sort": "none"
         }
       },
-      "title": "Author Statistics",
+      "title": "👥 User Statistics",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_users_total{application=\"library-management-system\"}",
+          "legendFormat": "Total Users",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_users_active{application=\"library-management-system\"}",
+          "legendFormat": "Active Users",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_users_new{application=\"library-management-system\"}",
+          "legendFormat": "New Users",
+          "refId": "C"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "title": "📋 Loan Statistics",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_loans_total{application=\"library-management-system\"}",
+          "legendFormat": "Total Loans",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_loans_overdue{application=\"library-management-system\"}",
+          "legendFormat": "Overdue Loans",
+          "refId": "B"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "title": "📧 Email Statistics",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_emails_welcome_sent{application=\"library-management-system\"}",
+          "legendFormat": "Welcome Emails",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_emails_loan_sent{application=\"library-management-system\"}",
+          "legendFormat": "Loan Notifications",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_emails_overdue_sent{application=\"library-management-system\"}",
+          "legendFormat": "Overdue Notifications",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_emails_errors{application=\"library-management-system\"}",
+          "legendFormat": "Email Errors",
+          "refId": "D"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "title": "👨‍💼 Author Statistics",
       "type": "timeseries",
       "targets": [
         {
@@ -247,15 +564,15 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -279,21 +596,22 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 8
+        "x": 12,
+        "y": 16
       },
-      "id": 3,
+      "id": 6,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -302,7 +620,7 @@
           "sort": "none"
         }
       },
-      "title": "Loan Statistics",
+      "title": "🔔 Notification Statistics",
       "type": "timeseries",
       "targets": [
         {
@@ -310,8 +628,8 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "library_loans_total{application=\"library-management-system\"}",
-          "legendFormat": "Total Loans",
+          "expr": "library_notifications_received{application=\"library-management-system\"}",
+          "legendFormat": "Notifications Received",
           "refId": "A"
         },
         {
@@ -319,9 +637,18 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "library_loans_overdue{application=\"library-management-system\"}",
-          "legendFormat": "Overdue Loans",
+          "expr": "library_notifications_processed{application=\"library-management-system\"}",
+          "legendFormat": "Notifications Processed",
           "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "library_notifications_errors{application=\"library-management-system\"}",
+          "legendFormat": "Notification Errors",
+          "refId": "C"
         }
       ]
     },
@@ -342,15 +669,15 @@
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 10,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -374,21 +701,22 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 8
+        "x": 0,
+        "y": 24
       },
-      "id": 4,
+      "id": 7,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -397,7 +725,7 @@
           "sort": "none"
         }
       },
-      "title": "Email Statistics",
+      "title": "🌐 HTTP Request Rate",
       "type": "timeseries",
       "targets": [
         {
@@ -405,8 +733,95 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "library_emails_sent{application=\"library-management-system\"}",
-          "legendFormat": "Emails Sent",
+          "expr": "rate(http_server_requests_seconds_count{application=\"library-management-system\"}[5m])",
+          "legendFormat": "Request Rate",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": ["mean", "max", "min"],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "title": "⏱️ HTTP Response Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "expr": "histogram_quantile(0.95, rate(http_server_requests_seconds_bucket{application=\"library-management-system\"}[5m]))",
+          "legendFormat": "95th Percentile",
           "refId": "A"
         },
         {
@@ -414,37 +829,28 @@
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "expr": "library_emails_errors{application=\"library-management-system\"}",
-          "legendFormat": "Email Errors",
+          "expr": "histogram_quantile(0.50, rate(http_server_requests_seconds_bucket{application=\"library-management-system\"}[5m]))",
+          "legendFormat": "50th Percentile",
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "expr": "library_emails_overdue_notifications{application=\"library-management-system\"}",
-          "legendFormat": "Overdue Notifications",
-          "refId": "C"
         }
       ]
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": [],
+  "tags": ["library", "monitoring", "spring-boot"],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Library Management System Dashboard",
+  "title": "📚 Library Management System - Real-time Monitoring Dashboard",
   "uid": "library-monitoring",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 } 

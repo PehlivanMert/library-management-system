@@ -182,6 +182,22 @@ public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
 }
 ```
 
+#### 4. Yeni Güvenlik Özellikleri (v2.0)
+- **Refresh Token Sistemi**:
+  - Token rotation (her refresh'te yeni token)
+  - Token blacklisting (logout)
+  - Scheduled cleanup (expired tokens)
+  - UUID tabanlı refresh token'lar
+
+- **Public Registration**:
+  - `POST /api/v1/auth/register` - Sadece READER rolü
+  - `POST /api/v1/users` - LIBRARIAN erişimi gerekli
+  - UnauthorizedRoleException ile güvenlik
+
+- **Custom Exception Handling**:
+  - AccessDeniedException için özel mesajlar
+  - GlobalExceptionHandler ile tutarlı hata yanıtları
+
 ### English
 #### 1. Method Level Security
 ```java

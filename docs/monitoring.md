@@ -213,6 +213,15 @@ scrape_configs:
 #### 3. Grafana
 Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağlar. Grafana'da aşağıdaki dashboard'ları oluşturabilirsiniz:
    - Bunun için (../grafana-library-monitoring-dashboard.json) dosyasını grafana dashboarda import edin.
+
+**Yeni Dashboard Özellikleri (v2.0):**
+- 8 farklı panel (Book, User, Loan, Email, Author, Notification, HTTP Request Rate, HTTP Response Time)
+- Real-time updates (10 saniye refresh rate)
+- Smooth line interpolation ve fill opacity
+- Table format legend'lar
+- Dark theme ve responsive tasarım
+- Emoji'ler ile görsel iyileştirmeler
+- HTTP performance metrics (request rate, response time percentiles)
 ```
 
 ## İzlenen Metrikler / Monitored Metrics
@@ -236,6 +245,20 @@ Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağ
 - Yazar ve kitap sayıları
 - Gecikmiş kitaplar
 
+#### 4. Yeni Eklenen Metrikler (v2.0)
+- **Refresh Token Metrikleri**:
+  - Token yenileme sayısı
+  - Token blacklist işlemleri
+  - Expired token cleanup
+- **Pagination Metrikleri**:
+  - Sayfalama performansı
+  - EntityGraph kullanımı
+  - LEFT JOIN FETCH optimizasyonu
+- **Authentication Metrikleri**:
+  - Login başarı/başarısızlık oranları
+  - Role-based access denials
+  - Public registration istatistikleri
+
 ### English
 #### 1. System Metrics
 - JVM metrics (heap, threads, GC)
@@ -254,6 +277,20 @@ Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağ
 - Book loans/returns
 - Author and book counts
 - Overdue books
+
+#### 4. Newly Added Metrics (v2.0)
+- **Refresh Token Metrics**:
+  - Token refresh count
+  - Token blacklist operations
+  - Expired token cleanup
+- **Pagination Metrics**:
+  - Pagination performance
+  - EntityGraph usage
+  - LEFT JOIN FETCH optimization
+- **Authentication Metrics**:
+  - Login success/failure rates
+  - Role-based access denials
+  - Public registration statistics
 
 ## Loglama / Logging
 

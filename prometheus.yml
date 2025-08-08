@@ -2,12 +2,23 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   scrape_timeout: 10s
+  external_labels:
+    monitor: 'library-management-system'
+    environment: 'development'
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
 
 scrape_configs:
-  - job_name: 'library-management'
+  - job_name: 'library-management-system'
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['localhost:8080']
+        labels:
+          application: 'library-management-system'
+          instance: 'library-app-1'
+          environment: 'development'
     scheme: 'http'
     scrape_interval: 15s
     honor_labels: true
@@ -15,4 +26,30 @@ scrape_configs:
       - source_labels: [__address__]
         target_label: instance
         regex: '(.*):.*'
-        replacement: '$1' 
+        replacement: '$1'
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+
+  # JVM Metrics (if running on same host)
+  - job_name: 'jvm-metrics'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: '/actuator/metrics'
+    scrape_interval: 30s
+    honor_labels: true
+
+  # Health Check
+  - job_name: 'health-check'
+    static_configs:
+      - targets: ['localhost:8080']
+    metrics_path: '/actuator/health'
+    scrape_interval: 60s
+    honor_labels: true
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093 

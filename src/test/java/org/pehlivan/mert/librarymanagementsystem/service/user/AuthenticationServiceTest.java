@@ -119,7 +119,6 @@ class AuthenticationServiceTest {
     void refreshToken_Success() {
         when(refreshTokenService.findByToken("test-refresh-token")).thenReturn(Optional.of(testRefreshToken));
         when(refreshTokenService.verifyExpiration(testRefreshToken)).thenReturn(testRefreshToken);
-        when(jwtHelper.isRefreshToken("test-refresh-token")).thenReturn(true);
         when(jwtHelper.generateAccessToken(any(UserDetails.class))).thenReturn("new-access-token");
         when(refreshTokenService.createRefreshToken(testUser)).thenReturn(testRefreshToken);
 
@@ -129,7 +128,7 @@ class AuthenticationServiceTest {
         assertEquals("new-access-token", response.getAccessToken());
         verify(refreshTokenService).findByToken("test-refresh-token");
         verify(refreshTokenService).verifyExpiration(testRefreshToken);
-        verify(jwtHelper).isRefreshToken("test-refresh-token");
+        // isRefreshToken kontrolü kaldırıldı çünkü refresh token'lar artık UUID formatında
     }
 
     @Test
