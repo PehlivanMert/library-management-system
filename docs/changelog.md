@@ -93,7 +93,7 @@
   - Flyway migration script
   - Index optimizations
 
-## [1.0.0] - 2025-01-01
+## [1.0.0] - 2025-13-05
 
 ### 🆕 Initial Release / İlk Sürüm
 - Basic library management system
