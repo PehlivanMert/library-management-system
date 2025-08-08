@@ -61,6 +61,25 @@ public class BookService {
         totalBooksCounter = meterRegistry.counter("library.books.total");
         categoryBooksCounter = meterRegistry.counter("library.books.category");
         stockChangeCounter = meterRegistry.counter("library.books.stock.change");
+        
+        // Initialize metrics with current data
+        initializeMetrics();
+    }
+    
+    private void initializeMetrics() {
+        try {
+            long totalBooks = bookRepository.count();
+            totalBooksCounter.increment(totalBooks);
+            
+            long totalStock = bookRepository.findAll().stream()
+                    .mapToLong(Book::getStock)
+                    .sum();
+            stockChangeCounter.increment(totalStock);
+            
+            log.info("Initialized metrics - Total books: {}, Total stock: {}", totalBooks, totalStock);
+        } catch (Exception e) {
+            log.error("Error initializing metrics", e);
+        }
     }
 
     @Transactional

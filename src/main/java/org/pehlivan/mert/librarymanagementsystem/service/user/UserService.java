@@ -54,6 +54,21 @@ public class UserService {
         totalUsersCounter = meterRegistry.counter("library.users.total");
         activeUsersCounter = meterRegistry.counter("library.users.active");
         newUsersCounter = meterRegistry.counter("library.users.new");
+        
+        // Initialize metrics with current data
+        initializeMetrics();
+    }
+    
+    private void initializeMetrics() {
+        try {
+            long totalUsers = userRepository.count();
+            totalUsersCounter.increment(totalUsers);
+            activeUsersCounter.increment(totalUsers); // Assume all users are active initially
+            
+            log.info("Initialized user metrics - Total users: {}", totalUsers);
+        } catch (Exception e) {
+            log.error("Error initializing user metrics", e);
+        }
     }
 
     @Transactional

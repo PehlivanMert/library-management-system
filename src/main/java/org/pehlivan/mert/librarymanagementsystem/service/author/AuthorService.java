@@ -42,6 +42,20 @@ public class AuthorService {
         totalAuthorsCounter = meterRegistry.counter("library.authors.total");
         booksPerAuthorCounter = meterRegistry.counter("library.authors.books.per.author");
         newAuthorsCounter = meterRegistry.counter("library.authors.new");
+        
+        // Initialize metrics with current data
+        initializeMetrics();
+    }
+    
+    private void initializeMetrics() {
+        try {
+            long totalAuthors = authorRepository.count();
+            totalAuthorsCounter.increment(totalAuthors);
+            
+            log.info("Initialized author metrics - Total authors: {}", totalAuthors);
+        } catch (Exception e) {
+            log.error("Error initializing author metrics", e);
+        }
     }
 
     @Transactional
