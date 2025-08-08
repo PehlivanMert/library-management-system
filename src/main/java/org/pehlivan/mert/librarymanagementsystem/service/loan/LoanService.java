@@ -63,6 +63,26 @@ public class LoanService {
     public void init() {
         loanCounter    = meterRegistry.counter("library.loans.total");
         overdueCounter = meterRegistry.counter("library.loans.overdue");
+        
+        // Initialize metrics with current data
+        initializeMetrics();
+    }
+    
+    private void initializeMetrics() {
+        try {
+            long totalLoans = loanRepository.count();
+            loanCounter.increment(totalLoans);
+            
+            // Count overdue loans by filtering
+            long overdueLoans = loanRepository.findAll().stream()
+                    .filter(loan -> loan.getStatus() == LoanStatus.OVERDUE)
+                    .count();
+            overdueCounter.increment(overdueLoans);
+            
+            log.info("Initialized loan metrics - Total loans: {}, Overdue loans: {}", totalLoans, overdueLoans);
+        } catch (Exception e) {
+            log.error("Error initializing loan metrics", e);
+        }
     }
 
     private static final int MAX_LOANS_PER_USER = 3;
