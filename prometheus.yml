@@ -14,14 +14,14 @@ scrape_configs:
   - job_name: 'library-management-system'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['127.0.0.1:8080']
         labels:
           application: 'library-management-system'
           instance: 'library-app-1'
           environment: 'development'
     scheme: 'http'
     scrape_interval: 15s
-    honor_labels: true
+    honor_labels: false
     scrape_timeout: 10s
     params:
       format: ['prometheus']
@@ -35,27 +35,7 @@ scrape_configs:
       - source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
 
-  # JVM Metrics (if running on same host)
-  - job_name: 'jvm-metrics'
-    static_configs:
-      - targets: ['localhost:8080']
-    metrics_path: '/actuator/metrics'
-    scrape_interval: 30s
-    honor_labels: true
-    scrape_timeout: 10s
-    params:
-      format: ['prometheus']
 
-  # Health Check
-  - job_name: 'health-check'
-    static_configs:
-      - targets: ['localhost:8080']
-    metrics_path: '/actuator/health'
-    scrape_interval: 60s
-    honor_labels: true
-    scrape_timeout: 10s
-    params:
-      format: ['prometheus']
 
 alerting:
   alertmanagers:
