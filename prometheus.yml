@@ -22,6 +22,9 @@ scrape_configs:
     scheme: 'http'
     scrape_interval: 15s
     honor_labels: true
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
     relabel_configs:
       - source_labels: [__address__]
         target_label: instance
@@ -39,6 +42,9 @@ scrape_configs:
     metrics_path: '/actuator/metrics'
     scrape_interval: 30s
     honor_labels: true
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
 
   # Health Check
   - job_name: 'health-check'
@@ -47,6 +53,9 @@ scrape_configs:
     metrics_path: '/actuator/health'
     scrape_interval: 60s
     honor_labels: true
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
 
 alerting:
   alertmanagers:
