@@ -153,15 +153,34 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   scrape_timeout: 10s
+  external_labels:
+    monitor: 'library-management-system'
+    environment: 'development'
 
 scrape_configs:
-  - job_name: 'library-management'
+  - job_name: 'library-management-system'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['localhost:8080']
+      - targets: ['127.0.0.1:8080']
+        labels:
+          application: 'library-management-system'
+          instance: 'library-app-1'
+          environment: 'development'
     scheme: 'http'
     scrape_interval: 15s
-    honor_labels: true
+    honor_labels: false
+    scrape_timeout: 10s
+    params:
+      format: ['prometheus']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: '(.*):.*'
+        replacement: '$1'
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: pod
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
 ```
 
 ### English
@@ -211,17 +230,28 @@ scrape_configs:
     honor_labels: true
 
 #### 3. Grafana
-Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağlar. Grafana'da aşağıdaki dashboard'ları oluşturabilirsiniz:
-   - Bunun için (../grafana-library-monitoring-dashboard.json) dosyasını grafana dashboarda import edin.
+Grafana, Prometheus ile entegre edilerek metriklerin görselleştirilmesini sağlar. Grafana yapılandırması otomatik olarak sağlanmaktadır:
 
-**Yeni Dashboard Özellikleri (v2.0):**
-- 8 farklı panel (Book, User, Loan, Email, Author, Notification, HTTP Request Rate, HTTP Response Time)
-- Real-time updates (10 saniye refresh rate)
-- Smooth line interpolation ve fill opacity
-- Table format legend'lar
-- Dark theme ve responsive tasarım
-- Emoji'ler ile görsel iyileştirmeler
-- HTTP performance metrics (request rate, response time percentiles)
+**Otomatik Yapılandırma:**
+- **Dashboard Provisioning**: `grafana/provisioning/dashboards/library.yml`
+- **Datasource Provisioning**: `grafana/provisioning/datasources/prometheus.yml`
+- **Dashboard JSON**: `grafana-library-monitoring-dashboard.json`
+
+**Manuel Import (Alternatif):**
+- Dashboard'u manuel olarak import etmek için `grafana-library-monitoring-dashboard.json` dosyasını Grafana'ya yükleyin
+
+**Dashboard Özellikleri (v3.0):**
+- **20 farklı panel** kapsamlı monitoring dashboard'u
+- **Real-time updates** (10 saniye refresh rate)
+- **Smooth line interpolation** ve fill opacity
+- **Table format legend'lar** ve responsive tasarım
+- **Dark theme** ve modern UI
+- **Emoji'ler** ile görsel iyileştirmeler
+- **HTTP performance metrics** (request rate, response time percentiles)
+- **Business metrics** (books, users, authors, loans)
+- **Error monitoring** ve system health tracking
+- **Templating variables** (HTTP methods, status codes)
+- **Comprehensive analytics** ve trend analysis
 ```
 
 #### Grafana Dashboard Görselleri
@@ -257,6 +287,38 @@ Bu dashboard, sistemin genel bakışını sağlar:
 - Book Statistics Overview
 - User Activity Statistics
 
+### 📊 Güncel Dashboard Paneli Detayları (v3.0)
+
+**Ana Paneller (20 Panel):**
+
+1. **🏠 System Overview** - Sistem sağlığı durumu
+2. **📚 Total Books** - Toplam kitap sayısı
+3. **👥 Total Users** - Toplam kullanıcı sayısı
+4. **👨‍💼 Total Authors** - Toplam yazar sayısı
+5. **🌐 HTTP Request Rate** - HTTP istek oranları (son 5 dakika)
+6. **⏱️ HTTP Response Time Percentiles** - Yanıt süresi yüzdelikleri
+7. **📊 Book Statistics Overview** - Kitap istatistikleri
+8. **👥 User Activity Statistics** - Kullanıcı aktivite istatistikleri
+9. **👨‍💼 Author Performance Metrics** - Yazar performans metrikleri
+10. **📋 Loan Management Overview** - Ödünç alma yönetimi
+11. **📧 Email Communication Metrics** - Email iletişim metrikleri
+12. **🔔 Notification System Performance** - Bildirim sistemi performansı
+13. **📈 HTTP Status Code Distribution** - HTTP durum kodu dağılımı
+14. **🔄 Request Method Distribution** - İstek metodu dağılımı
+15. **📊 Book Category Distribution** - Kitap kategori dağılımı (Pie Chart)
+16. **📋 Loan Status Overview** - Ödünç alma durumu (Pie Chart)
+17. **👥 User Role Distribution** - Kullanıcı rol dağılımı (Pie Chart)
+18. **📈 System Performance Trends** - Sistem performans trendleri
+19. **🔍 Error Rate Monitoring** - Hata oranı izleme
+20. **📊 Business Metrics Summary** - İş metrikleri özeti
+
+**Özellikler:**
+- **Templating Variables**: HTTP Method ve HTTP Status filtreleme
+- **Real-time Updates**: 10 saniye otomatik yenileme
+- **Dark Theme**: Modern koyu tema
+- **Responsive Design**: Mobil ve masaüstü uyumlu
+- **Interactive Panels**: Tıklanabilir ve detay görüntüleme
+
 ## İzlenen Metrikler / Monitored Metrics
 
 ### Türkçe
@@ -278,19 +340,27 @@ Bu dashboard, sistemin genel bakışını sağlar:
 - Yazar ve kitap sayıları
 - Gecikmiş kitaplar
 
-#### 4. Yeni Eklenen Metrikler (v2.0)
-- **Refresh Token Metrikleri**:
-  - Token yenileme sayısı
-  - Token blacklist işlemleri
-  - Expired token cleanup
-- **Pagination Metrikleri**:
-  - Sayfalama performansı
-  - EntityGraph kullanımı
-  - LEFT JOIN FETCH optimizasyonu
-- **Authentication Metrikleri**:
-  - Login başarı/başarısızlık oranları
-  - Role-based access denials
-  - Public registration istatistikleri
+#### 4. Kapsamlı Metrikler (v3.0)
+- **Sistem Sağlığı Metrikleri**:
+  - System overview ve health status
+  - HTTP request/response monitoring
+  - Error rate tracking
+- **İş Metrikleri**:
+  - Kitap, kullanıcı, yazar sayıları
+  - Ödünç alma/iade istatistikleri
+  - Gecikmiş kitap takibi
+- **Performans Metrikleri**:
+  - HTTP response time percentiles
+  - Request rate monitoring
+  - System performance trends
+- **İletişim Metrikleri**:
+  - Email gönderim istatistikleri
+  - Notification system performance
+  - Error tracking
+- **Analitik Metrikleri**:
+  - Category distribution
+  - User role distribution
+  - Loan status overview
 
 ### English
 #### 1. System Metrics
@@ -311,19 +381,27 @@ Bu dashboard, sistemin genel bakışını sağlar:
 - Author and book counts
 - Overdue books
 
-#### 4. Newly Added Metrics (v2.0)
-- **Refresh Token Metrics**:
-  - Token refresh count
-  - Token blacklist operations
-  - Expired token cleanup
-- **Pagination Metrics**:
-  - Pagination performance
-  - EntityGraph usage
-  - LEFT JOIN FETCH optimization
-- **Authentication Metrics**:
-  - Login success/failure rates
-  - Role-based access denials
-  - Public registration statistics
+#### 4. Comprehensive Metrics (v3.0)
+- **System Health Metrics**:
+  - System overview and health status
+  - HTTP request/response monitoring
+  - Error rate tracking
+- **Business Metrics**:
+  - Book, user, author counts
+  - Loan/return statistics
+  - Overdue book tracking
+- **Performance Metrics**:
+  - HTTP response time percentiles
+  - Request rate monitoring
+  - System performance trends
+- **Communication Metrics**:
+  - Email sending statistics
+  - Notification system performance
+  - Error tracking
+- **Analytics Metrics**:
+  - Category distribution
+  - User role distribution
+  - Loan status overview
 
 ## Loglama / Logging
 
@@ -489,6 +567,19 @@ logging:
 2. Sol menüden "Dashboards" seçin
 3. "Library Management System - Comprehensive Monitoring Dashboard"u açın
 
+#### Otomatik Yapılandırma
+Grafana, Docker Compose ile başlatıldığında otomatik olarak yapılandırılır:
+
+**Provisioning Dosyaları:**
+- `grafana/provisioning/dashboards/library.yml` - Dashboard provisioning
+- `grafana/provisioning/datasources/prometheus.yml` - Prometheus datasource
+- `grafana-library-monitoring-dashboard.json` - Dashboard tanımı
+
+**Otomatik Özellikler:**
+- Dashboard otomatik olarak yüklenir
+- Prometheus datasource otomatik olarak eklenir
+- Dashboard düzenlenebilir ve özelleştirilebilir
+
 #### Dashboard Özellikleri
 - **Real-time Updates**: 5 saniyede bir otomatik yenileme
 - **Time Range**: Son 15 dakika varsayılan, özelleştirilebilir
@@ -508,16 +599,44 @@ logging:
 3. Open "Library Management System - Comprehensive Monitoring Dashboard"
 
 #### Dashboard Features
-- **Real-time Updates**: Auto-refresh every 5 seconds
-- **Time Range**: Default 15 minutes, customizable
+- **Real-time Updates**: Auto-refresh every 10 seconds
+- **Time Range**: Default 1 hour, customizable
 - **Responsive Design**: Mobile and desktop compatible
 - **Dark Theme**: Dark theme reducing eye strain
+- **Templating Variables**: HTTP Method and Status filtering
+- **Interactive Panels**: Clickable panels with detailed views
 
 #### Panel Descriptions
 1. **System Overview**: System health and general statistics
 2. **HTTP Metrics**: Request rates and response times
 3. **Business Metrics**: Book, user, and loan statistics
 4. **Performance Metrics**: System performance indicators
+5. **Communication Metrics**: Email and notification statistics
+6. **Analytics Metrics**: Category and role distributions
+7. **Error Monitoring**: Error rates and system issues
+
+## Mevcut Monitoring Kurulumu / Current Monitoring Setup
+
+### Türkçe
+Proje, kapsamlı bir monitoring sistemi ile birlikte gelir:
+
+**Docker Compose ile Otomatik Kurulum:**
+```bash
+# Tüm servisleri başlat (Prometheus, Grafana, Application)
+docker-compose up -d
+
+# Servislerin durumunu kontrol et
+docker-compose ps
+
+# Grafana'ya erişim: http://localhost:3000
+# Prometheus'a erişim: http://localhost:9090
+# Application'a erişim: http://localhost:8080
+```
+
+**Otomatik Yapılandırma:**
+- Prometheus otomatik olarak uygulamadan metrikleri toplar
+- Grafana otomatik olarak dashboard'u yükler
+- Datasource otomatik olarak yapılandırılır
 
 ## Manuel Dashboard Yükleme / Manual Dashboard Import
 
@@ -572,6 +691,27 @@ cat grafana-library-monitoring-dashboard.json | jq .
 # Grafana'yı yeniden başlatın
 docker restart library-grafana
 ```
+
+### English
+The project comes with a comprehensive monitoring system:
+
+**Automatic Setup with Docker Compose:**
+```bash
+# Start all services (Prometheus, Grafana, Application)
+docker-compose up -d
+
+# Check service status
+docker-compose ps
+
+# Access Grafana: http://localhost:3000
+# Access Prometheus: http://localhost:9090
+# Access Application: http://localhost:8080
+```
+
+**Automatic Configuration:**
+- Prometheus automatically collects metrics from the application
+- Grafana automatically loads the dashboard
+- Datasource is automatically configured
 
 ### English
 Follow the steps below to manually import the Grafana dashboard:
