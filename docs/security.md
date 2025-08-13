@@ -350,36 +350,3 @@ public ResponseEntity<?> protectedEndpoint() {
 }
 ```
 
-## Gelecek Geliştirmeler / Future Improvements
-
-### Türkçe
-1. **Güvenlik İyileştirmeleri**:
-   - Rate limiting
-   - IP bazlı kısıtlama
-   - İki faktörlü doğrulama
-
-2. **Token Yönetimi**:
-   - Refresh token
-   - Token blacklist
-   - Token rotasyonu
-
-3. **Monitoring**:
-   - Güvenlik olayları izleme
-   - Anomali tespiti
-   - Otomatik uyarılar
-
-### English
-1. **Security Improvements**:
-   - Rate limiting
-   - IP-based restrictions
-   - Two-factor authentication
-
-2. **Token Management**:
-   - Refresh token
-   - Token blacklist
-   - Token rotation
-
-3. **Monitoring**:
-   - Security event monitoring
-   - Anomaly detection
-   - Automated alerts 
